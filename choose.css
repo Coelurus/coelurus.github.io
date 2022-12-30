@@ -1,0 +1,115 @@
+#parent-list {
+    list-style: none;
+}
+
+#choose-species,
+#choose-food,
+#choose-location {
+    display: none;
+}
+
+#parent-list {
+    display: flex;
+    justify-content: space-evenly;
+    margin: 0;
+    padding: 0;
+    width: 100%;
+    min-height: 600px;
+    flex-wrap: wrap;
+}
+
+.list-item {
+    display: block;
+    width: 300px;
+    height: 80px;
+    background-color: white;
+    box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.3), 0 6px 20px 0 rgba(0, 0, 0, 0.40);
+    text-decoration: none;
+    color: rgba(0, 0, 0, 0.8);
+    margin: 20px 0;
+    transition: height;
+}
+
+.list-item h2 {
+    height: 40px;
+    padding: 20px 0;
+    margin-bottom: 0;
+}
+
+.list-item img {
+    width: 100%;
+    display: none;
+}
+
+.list-item ul {
+    width: 80%;
+    display: none;
+    padding: 0 40px;
+}
+
+.list-item ul ul {
+    width: 60%;
+    display: none;
+    padding: 0 20%;
+}
+
+.list-item ul li {
+    margin: 10px 0;
+}
+
+.list-item h3 {
+    display: none;
+}
+
+#choose-species:checked+label .list-item {
+    height: 500px;
+}
+
+#choose-species:checked+label .list-item h3 {
+    display: block;
+}
+
+#choose-food:checked+label .list-item {
+    height: 500px;
+}
+
+#choose-food:checked+label .list-item h3 {
+    display: block;
+}
+
+#choose-food:checked+label .list-item ul {
+    display: block;
+}
+
+#choose-food:checked+label .list-item img {
+    display: block;
+}
+
+#choose-location:checked+label .list-item {
+    height: 500px;
+}
+
+#choose-location:checked+label .list-item h3 {
+    display: block;
+}
+
+#choose-location:checked+label .list-item ul {
+    display: block;
+}
+
+#choose-location:checked+label .list-item img {
+    display: block;
+}
+
+.hyena-type {
+    margin: 0;
+    padding: 10px 0;
+}
+
+.hyena-type:hover+img {
+    display: block;
+}
+
+.hyena-type+img:hover {
+    display: block;
+}

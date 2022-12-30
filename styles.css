@@ -1,0 +1,171 @@
+html {
+    background-color: #ffffff;
+    text-align: center;
+    font-family: Georgia, 'Times New Roman', Times, serif;
+}
+
+body {
+    margin: 30px auto;
+    max-width: 1000px;
+    background-color: #718F94;
+    box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.2), 0 6px 20px 0 rgba(0, 0, 0, 0.19);
+}
+
+h1 {
+    margin: 0;
+}
+
+#header-image {
+    width: auto;
+    height: 400px;
+    background-color: antiquewhite;
+    background-image: url("https://external-preview.redd.it/lPRaL5xWZQ6Y248ySJF3KAldYt_eUcdHJ2o91v9qfvQ.jpg?auto=webp&s=e99a555e92164f08a5d0ae0fa3a526107dabf7f5");
+    background-position: center;
+    background-size: cover;
+    background-repeat: no-repeat;
+    position: relative;
+}
+
+#more-info #header-image {
+    background-image: url("https://preview.redd.it/x0kgu1ze5pz91.png?width=640&crop=smart&auto=webp&s=40519ffc36a6f23c36c6147b363f0fbbc7fe655b");
+}
+
+#header-text {
+    text-align: center;
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    font-size: 40px;
+    text-shadow: 2px 2px 4px #000000;
+    color: white;
+}
+
+#header-text p {
+    font-size: 20px;
+}
+
+#main-menu {
+    display: flex;
+    justify-content: space-evenly;
+    flex-wrap: wrap;
+}
+
+.menu-item {
+    width: 300px;
+    height: 500px;
+    background-color: white;
+    box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.3), 0 6px 20px 0 rgba(0, 0, 0, 0.40);
+    text-decoration: none;
+    color: rgba(0, 0, 0, 0.8);
+    margin: 20px 0;
+}
+
+#main-menu .menu-header {
+    height: 200px;
+    width: 300px;
+    padding: 0;
+}
+
+#main-menu .menu-header.one {
+    background-image: url("https://preview.redd.it/ean4sa8yhk6a1.jpg?width=640&crop=smart&auto=webp&s=a9fb73ffe2b27b79af672209521cc54e52d646c0");
+    background-size: cover;
+}
+
+#main-menu .menu-header.two {
+    background-image: url("https://preview.redd.it/sq2nr2b5fe4a1.jpg?width=640&crop=smart&auto=webp&s=7038e90bf1425638a2eabc068c33c92f52753389");
+    background-size: cover;
+}
+
+#main-menu .menu-footer {
+    padding: 20px;
+}
+
+
+#video-part {
+    margin: 100px auto;
+    height: 500px;
+    max-width: 700px;
+    color: rgba(0, 0, 0, 0.8);
+
+}
+
+#video-box {
+    height: 400px;
+    background-color: white;
+    box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.3), 0 6px 20px 0 rgba(0, 0, 0, 0.0);
+}
+
+#THE-video {
+    width: 100%;
+    height: 100%;
+}
+
+#footer {
+    height: 100px;
+    background-color: white;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+iframe {
+    border: 0px;
+}
+
+#footer a h2 {
+    color: #000000;
+}
+
+#personality-traits #header-image {
+    background-image: url("https://preview.redd.it/kshi73i8aat91.jpg?width=640&crop=smart&auto=webp&s=64cd7222e6716a12e84e9753d813f3099a244f09");
+}
+
+#personality-traits h1 {
+    padding: 50px 0 0 0;
+    color: white;
+}
+
+#personality-traits h2 {
+    padding: 20px 15%;
+}
+
+#hyena-traits-table {
+    table-layout: fixed;
+    height: 440px;
+    width: 440px;
+    margin: 40px auto;
+    padding: 20px;
+    border: white solid 5px;
+}
+
+#hyena-traits-table tr td {
+    background-color: rgba(0, 0, 0, 0.8);
+    width: 108px;
+    height: 108px;
+    align-items: center;
+    text-align: center;
+    transition: all .5s ease-out;
+}
+
+#hyena-traits-table tr th {
+    height: 108px;
+    width: 108px;
+    background-color: white;
+}
+
+#hyena-traits-table img {
+    width: 100px;
+    height: 100px;
+    opacity: 0;
+    transition: all .5s ease-out;
+    margin-top: 3px;
+}
+
+#hyena-traits-table tr td:hover {
+    transform: scale(3);
+}
+
+#hyena-traits-table tr td:hover img {
+    opacity: 1;
+}

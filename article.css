@@ -1,0 +1,100 @@
+.hyena-defense {
+    background-color: #718F94;
+    width: 90%;
+    margin: auto;
+}
+
+.hyena-defense-border {
+    margin: 40px auto;
+    padding: 20px;
+    border: rgb(255, 255, 255);
+    border-style: solid;
+    border-width: 10px;
+    box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.4), 0 6px 20px 0 rgba(0, 0, 0, 0.19);
+    color: white;
+}
+
+section {
+    margin: 30px 0 0 0;
+}
+
+#shown-part h1 {
+    margin-top: 20px;
+}
+
+#show-content,
+#hide-content,
+#hidden-part {
+    display: none;
+}
+
+#show-content:checked~#hidden-part {
+    display: block;
+}
+
+#hide-content:checked~#hidden-part {
+    display: none;
+}
+
+#show-content:checked~#shown-part .read-more-button {
+    display: none;
+}
+
+.read-more-button {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    margin: 0;
+}
+
+.read-more-button-element {
+    text-decoration: none;
+    cursor: pointer;
+    color: #fff;
+    font-size: 20px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    padding: 0 5px;
+    transition: 0.3s all ease;
+    position: relative;
+}
+
+.read-more-button-element:hover {
+    color: rgba(0, 0, 0, 0.8);
+}
+
+.read-more-button-element::before {
+    position: absolute;
+    content: '';
+    left: 0;
+    z-index: 0;
+    background-color: #fff;
+    width: 38px;
+    height: 38px;
+    border-radius: 80px;
+    transition: 0.3s all cubic-bezier(0.175, 0.885, 0.32, 1.275);
+}
+
+.read-more-button-element:hover::before {
+    width: 100%;
+    background-color: rgba(255, 255, 255, 0.2);
+    border: #FFFFFF;
+    border-width: 5px;
+    border-style: dashed;
+}
+
+.read-more-button-element:hover svg path {
+    fill: #ffffff;
+}
+
+.read-more-button-element svg {
+    height: 30px;
+    width: 30px;
+    margin-right: 12px;
+    z-index: 1;
+}
+
+.read-more-button-element svg path {
+    fill: #718F94;
+}
