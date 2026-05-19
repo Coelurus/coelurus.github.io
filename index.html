@@ -1,154 +1,2986 @@
 <!DOCTYPE html>
-<html lang="cs">
+<html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta http-equiv="X-UA-Compatible" content="IE=edge">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <link rel="stylesheet" href="styles.css">
-    <link rel="stylesheet" href="article.css">
-    <meta name="description" content="Cesta jakou si zamilovat hyeny">
-    <meta name="keywords" content="Hyenas, Love, Láska, Hyeny">
-    <meta name="author" content="Filip Vopálenský">
-    <title>HYENYYY!</title>
-    <link rel="icon" type="image/x-icon" href="https://preview.redd.it/4jvfbz9cttp91.jpg?width=640&crop=smart&auto=webp&s=0e7979abc5fe16d8d33c2600d32fc1e3fd33ee8a">
+    <title>Is the punk all the same?</title>
+    <link rel="icon" type="image/jpeg" href="./imgs/icon.jpg">
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: 'Segoe UI', sans-serif;
+            background: #1a1a2e;
+            color: #eee;
+            overflow: hidden;
+        }
 
+        /* Slide system */
+        .slide {
+            position: absolute;
+            top: 0; left: 0; right: 0; bottom: 0;
+            display: none;
+            width: 100vw;
+            height: 100vh;
+        }
+        .slide.active { display: flex; }
+
+        /* Navigation */
+        .nav-btn {
+            position: fixed;
+            bottom: 30px;
+            z-index: 200;
+            background: rgba(30, 30, 50, 0.8);
+            border: 1px solid #555;
+            color: #eee;
+            font-size: 20px;
+            padding: 10px 20px;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: background 0.2s, transform 0.1s;
+        }
+        .nav-btn:hover { background: rgba(78, 205, 196, 0.3); }
+        .nav-btn:active { transform: scale(0.95); }
+        #nav-prev { left: 30px; }
+        #nav-next { right: 30px; }
+        .nav-btn:disabled { opacity: 0.3; cursor: default; }
+        .nav-btn:disabled:hover { background: rgba(30, 30, 50, 0.8); }
+
+        #slide-counter {
+            position: fixed;
+            bottom: 35px;
+            left: 50%;
+            transform: translateX(-50%);
+            z-index: 200;
+            font-size: 14px;
+            color: #888;
+        }
+
+        /* Slide 1: Title */
+        #slide-1 {
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            text-align: center;
+        }
+        #slide-1 h1 {
+            font-size: 4.5rem;
+            font-weight: 700;
+            margin-bottom: 20px;
+            background: linear-gradient(135deg, #4ecdc4, #ff6b6b);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+        #slide-1 p {
+            font-size: 1.4rem;
+            color: #aaa;
+        }
+
+        /* Slide 2: Data Pipeline */
+        #slide-2 {
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 60px;
+        }
+        #slide-2 h2 {
+            font-size: 2.2rem;
+            margin-bottom: 30px;
+            background: linear-gradient(135deg, #4ecdc4, #ff6b6b);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+        .flow-container {
+            position: relative;
+            width: 1100px;
+            height: 480px;
+            margin: 0 auto;
+            transform-origin: center center;
+        }
+        .flow-container svg.flow-lines {
+            position: absolute;
+            top: 0; left: 0;
+            width: 1100px; height: 480px;
+            pointer-events: none;
+        }
+        .flow-lines .flow-path {
+            fill: none;
+            stroke: #4ecdc4;
+            stroke-width: 2.5;
+            stroke-dasharray: 8 6;
+            animation: flowDash 1.2s linear infinite;
+        }
+        .flow-lines .flow-arrow {
+            fill: #4ecdc4;
+        }
+        @keyframes flowDash {
+            to { stroke-dashoffset: -14; }
+        }
+        .node-stats {
+            font-size: 10px;
+            color: #aaa;
+            text-align: center;
+            line-height: 1.4;
+            margin-top: auto;
+            border-top: 1px solid #3a3a3a;
+            padding-top: 6px;
+        }
+        .flow-node {
+            position: absolute;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 6px;
+            padding: 14px 16px;
+            background: rgba(30, 30, 50, 0.9);
+            border-radius: 12px;
+            border: 1px solid #444;
+            width: 150px;
+            height: 170px;
+            box-sizing: border-box;
+            justify-content: center;
+            transition: transform 0.2s, box-shadow 0.2s;
+        }
+        .flow-node:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 6px 20px rgba(78, 205, 196, 0.25);
+        }
+        .flow-node img {
+            width: 44px;
+            height: 44px;
+            object-fit: contain;
+            border-radius: 6px;
+        }
+        .flow-node .node-label {
+            font-size: 13px;
+            color: #ccc;
+            text-align: center;
+            line-height: 1.3;
+        }
+        .flow-node.center-node {
+            background: rgba(78, 205, 196, 0.15);
+            border-color: #4ecdc4;
+        }
+        .flow-node.center-node .node-label {
+            color: #4ecdc4;
+            font-weight: 600;
+            font-size: 15px;
+        }
+
+        /* Slide 3: Band Timeline */
+        #slide-3 {
+            flex-direction: column;
+            position: relative;
+            align-items: center;
+            justify-content: center;
+        }
+        #slide-3-title {
+            position: absolute;
+            top: 15px;
+            left: 50%;
+            transform: translateX(-50%);
+            z-index: 15;
+            font-size: 1.5rem;
+            font-weight: 600;
+            color: #eee;
+            pointer-events: none;
+        }
+        #timeline-svg {
+            width: 90%;
+            height: 85%;
+        }
+        .country-label {
+            font-size: 11px;
+            fill: #4ecdc4;
+            font-weight: 600;
+        }
+        .band-label {
+            font-size: 9px;
+            fill: #aaa;
+        }
+        .timeline-bar {
+            opacity: 0.85;
+            transition: opacity 0.2s;
+        }
+        .timeline-bar:hover {
+            opacity: 1;
+        }
+
+        /* Slide 8: Conclusion */
+        #slide-8 {
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            position: relative;
+        }
+        #slide-8-title {
+            position: absolute;
+            top: 15px;
+            left: 50%;
+            transform: translateX(-50%);
+            z-index: 15;
+            font-size: 1.5rem;
+            font-weight: 600;
+            color: #eee;
+            pointer-events: none;
+        }
+
+        /* Slide 4: Force graph */
+        #slide-4 {
+            flex-direction: column;
+            position: relative;
+        }
+        #slide-4-title {
+            position: absolute;
+            top: 15px;
+            left: 50%;
+            transform: translateX(-50%);
+            z-index: 15;
+            font-size: 1.5rem;
+            font-weight: 600;
+            color: #eee;
+            text-align: center;
+            pointer-events: none;
+        }
+        #slide-4 #controls {
+            position: absolute;
+            top: 60px;
+            left: 20px;
+            z-index: 10;
+            background: rgba(30, 30, 50, 0.9);
+            padding: 16px 24px;
+            border-radius: 10px;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.5);
+        }
+        #slide-4 #controls label {
+            display: block;
+            margin-bottom: 6px;
+            font-size: 14px;
+        }
+        #slide-4 #controls input[type="range"] {
+            width: 250px;
+            cursor: pointer;
+        }
+        #threshold-value {
+            font-weight: bold;
+            color: #ffd700;
+        }
+        #filters {
+            position: absolute;
+            top: 60px;
+            right: 20px;
+            z-index: 10;
+            background: rgba(30, 30, 50, 0.9);
+            padding: 16px 20px;
+            border-radius: 10px;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.5);
+            max-height: 70vh;
+            overflow-y: auto;
+        }
+        #filters h3 {
+            margin-bottom: 10px;
+            font-size: 14px;
+            color: #ccc;
+        }
+        .filter-item {
+            display: flex;
+            align-items: center;
+            margin: 6px 0;
+            cursor: pointer;
+            padding: 4px 8px;
+            border-radius: 6px;
+            transition: background 0.2s;
+        }
+        .filter-item:hover { background: rgba(255,255,255,0.1); }
+        .filter-item.disabled { opacity: 0.35; }
+        .filter-dot {
+            width: 16px;
+            height: 16px;
+            border-radius: 50%;
+            margin-right: 10px;
+            flex-shrink: 0;
+        }
+        .filter-label { font-size: 13px; }
+        #legend {
+            position: absolute;
+            bottom: 70px;
+            left: 20px;
+            z-index: 10;
+            background: rgba(30, 30, 50, 0.9);
+            padding: 14px 20px;
+            border-radius: 10px;
+            font-size: 13px;
+        }
+        svg { display: block; }
+        .link { stroke-opacity: 0.5; }
+        .node text { fill: #eee; pointer-events: none; }
+        .tooltip {
+            position: absolute;
+            background: rgba(20, 20, 40, 0.95);
+            padding: 8px 12px;
+            border-radius: 6px;
+            font-size: 12px;
+            pointer-events: none;
+            display: none;
+            border: 1px solid #444;
+            z-index: 300;
+        }
+        .tt-table {
+            border-collapse: collapse;
+            margin-top: 4px;
+            font-size: 11px;
+        }
+        .tt-table td {
+            padding: 2px 6px;
+        }
+        .tt-table .tt-emotion {
+            color: #aaa;
+        }
+        .tt-table .tt-val {
+            color: #ffd700;
+            text-align: right;
+            font-weight: 600;
+        }
+        .switch {
+            position: relative;
+            display: inline-block;
+            width: 40px;
+            height: 20px;
+        }
+        .switch input { opacity: 0; width: 0; height: 0; }
+        .slider-toggle {
+            position: absolute;
+            cursor: pointer;
+            top: 0; left: 0; right: 0; bottom: 0;
+            background: #555;
+            border-radius: 20px;
+            transition: 0.3s;
+        }
+        .slider-toggle:before {
+            content: "";
+            position: absolute;
+            height: 14px; width: 14px;
+            left: 3px; bottom: 3px;
+            background: #eee;
+            border-radius: 50%;
+            transition: 0.3s;
+        }
+        .switch input:checked + .slider-toggle { background: #4ecdc4; }
+        .switch input:checked + .slider-toggle:before { transform: translateX(20px); }
+        #drilldown {
+            position: fixed;
+            top: 0; left: 0; right: 0; bottom: 0;
+            z-index: 250;
+            background: rgba(10, 10, 30, 0.95);
+            display: none;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+        }
+        #drilldown.active { display: flex; }
+        #drilldown-header {
+            position: absolute;
+            top: 30px;
+            text-align: center;
+        }
+        #drilldown-header h2 { font-size: 22px; margin-bottom: 6px; }
+        #drilldown-header p { font-size: 13px; color: #aaa; }
+        #drilldown-close {
+            position: absolute;
+            top: 20px;
+            right: 30px;
+            font-size: 28px;
+            cursor: pointer;
+            color: #eee;
+            background: none;
+            border: none;
+            line-height: 1;
+        }
+        #drilldown-close:hover { color: #ff6b6b; }
+        #drilldown svg { width: 100vw; height: 100vh; }
+        /* Slide 5: Chord diagram */
+        #slide-5 {
+            flex-direction: column;
+            position: relative;
+            align-items: center;
+            justify-content: center;
+        }
+        #slide-5-title {
+            position: absolute;
+            top: 15px;
+            left: 50%;
+            transform: translateX(-50%);
+            z-index: 15;
+            font-size: 1.5rem;
+            font-weight: 600;
+            color: #eee;
+            text-align: center;
+            pointer-events: none;
+        }
+        #slide-5 #chord-controls {
+            position: absolute;
+            top: 60px;
+            left: 20px;
+            z-index: 10;
+            background: rgba(30, 30, 50, 0.9);
+            padding: 16px 24px;
+            border-radius: 10px;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.5);
+        }
+        #slide-5 #chord-controls label {
+            display: block;
+            margin-bottom: 6px;
+            font-size: 14px;
+        }
+        #slide-5 #chord-controls input[type="range"] {
+            width: 200px;
+            cursor: pointer;
+        }
+        #topic-count-value {
+            font-weight: bold;
+            color: #ffd700;
+        }
+        /* Dual range slider */
+        .dual-range {
+            position: relative;
+            width: 200px;
+            height: 36px;
+            margin-top: 6px;
+        }
+        .dual-range .track {
+            position: absolute;
+            top: 14px;
+            left: 0; right: 0;
+            height: 6px;
+            background: #444;
+            border-radius: 3px;
+        }
+        .dual-range .track-fill {
+            position: absolute;
+            top: 14px;
+            height: 6px;
+            background: #4ecdc4;
+            border-radius: 3px;
+        }
+        .dual-range input[type="range"] {
+            position: absolute;
+            top: 6px;
+            left: 0;
+            width: 100%;
+            height: 22px;
+            margin: 0;
+            -webkit-appearance: none;
+            appearance: none;
+            background: transparent;
+            pointer-events: none;
+            z-index: 2;
+        }
+        .dual-range input[type="range"]::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            width: 20px;
+            height: 20px;
+            border-radius: 50%;
+            background: #fff;
+            border: 3px solid #4ecdc4;
+            cursor: pointer;
+            pointer-events: all;
+            box-shadow: 0 2px 6px rgba(0,0,0,0.3);
+        }
+        .dual-range input[type="range"]::-moz-range-thumb {
+            width: 20px;
+            height: 20px;
+            border-radius: 50%;
+            background: #fff;
+            border: 3px solid #4ecdc4;
+            cursor: pointer;
+            pointer-events: all;
+            box-shadow: 0 2px 6px rgba(0,0,0,0.3);
+        }
+        #chord-svg .arc-label {
+            font-size: 11px;
+            fill: #eee;
+        }
+        #chord-svg .ribbon {
+            stroke: none;
+            fill-opacity: 0.55;
+        }
+        #chord-svg .ribbon:hover {
+            fill-opacity: 0.85;
+        }
+        #topic-leaderboard {
+            position: absolute;
+            top: 60px;
+            right: 20px;
+            z-index: 10;
+            background: rgba(30, 30, 50, 0.9);
+            padding: 14px 18px;
+            border-radius: 10px;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.5);
+            max-height: 75vh;
+            overflow-y: auto;
+            min-width: 180px;
+        }
+        #topic-leaderboard h3 {
+            margin-bottom: 8px;
+            font-size: 14px;
+            color: #ccc;
+        }
+        #topic-leaderboard .lb-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 3px 0;
+            font-size: 12px;
+            border-bottom: 1px solid rgba(255,255,255,0.05);
+        }
+        #topic-leaderboard .lb-item .lb-rank {
+            color: #888;
+            width: 20px;
+            flex-shrink: 0;
+        }
+        #topic-leaderboard .lb-item .lb-name {
+            flex: 1;
+            color: #eee;
+        }
+        #topic-leaderboard .lb-item .lb-count {
+            color: #4ecdc4;
+            font-weight: bold;
+            margin-left: 10px;
+        }
+
+        /* Slide 6: Emotions Radar */
+        #slide-6 {
+            flex-direction: column;
+            position: relative;
+            align-items: center;
+            justify-content: center;
+        }
+        #slide-6-title {
+            position: absolute;
+            top: 15px;
+            left: 50%;
+            transform: translateX(-50%);
+            z-index: 15;
+            font-size: 1.5rem;
+            font-weight: 600;
+            color: #eee;
+            text-align: center;
+            pointer-events: none;
+        }
+        #radar-controls {
+            position: absolute;
+            top: 60px;
+            left: 20px;
+            z-index: 10;
+            background: rgba(30, 30, 50, 0.9);
+            padding: 16px 24px;
+            border-radius: 10px;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.5);
+        }
+        #radar-controls label {
+            display: block;
+            margin-bottom: 6px;
+            font-size: 14px;
+        }
+        #radar-controls select {
+            width: 200px;
+            padding: 6px 10px;
+            border-radius: 6px;
+            border: 1px solid #555;
+            background: #2a2a4a;
+            color: #eee;
+            font-size: 13px;
+            cursor: pointer;
+        }
+        #radar-controls .mode-toggle {
+            display: flex;
+            gap: 8px;
+            margin-bottom: 14px;
+        }
+        #radar-controls .r-mode-btn {
+            padding: 6px 14px;
+            border: 1px solid #555;
+            border-radius: 6px;
+            background: transparent;
+            color: #ccc;
+            cursor: pointer;
+            font-size: 12px;
+            transition: all 0.2s;
+        }
+        #radar-controls .r-mode-btn:hover { border-color: #4ecdc4; color: #4ecdc4; }
+        #radar-controls .r-mode-btn.active {
+            background: rgba(78, 205, 196, 0.2);
+            border-color: #4ecdc4;
+            color: #4ecdc4;
+            font-weight: 600;
+        }
+        #radar-play-btn {
+            margin-top: 10px;
+            padding: 6px 14px;
+            border: 1px solid #4ecdc4;
+            border-radius: 6px;
+            background: rgba(78, 205, 196, 0.15);
+            color: #4ecdc4;
+            cursor: pointer;
+            font-size: 12px;
+        }
+        #radar-play-btn:hover { background: rgba(78, 205, 196, 0.3); }
+        #radar-year-display {
+            font-size: 14px;
+            font-weight: 600;
+            color: #ffd700;
+            margin-top: 8px;
+        }
+        #radar-legend {
+            position: absolute;
+            top: 60px;
+            right: 20px;
+            z-index: 10;
+            background: rgba(30, 30, 50, 0.9);
+            padding: 14px 18px;
+            border-radius: 10px;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.5);
+            max-height: 70vh;
+            overflow-y: auto;
+            min-width: 180px;
+        }
+        #radar-legend h3 {
+            font-size: 13px;
+            color: #888;
+            margin-bottom: 8px;
+        }
+        .r-legend-item {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            padding: 4px 0;
+            font-size: 12px;
+            cursor: pointer;
+            transition: opacity 0.2s;
+        }
+        .r-legend-item:hover { opacity: 0.8; }
+        .r-legend-dot {
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            flex-shrink: 0;
+        }
+
+        /* Slide 7: Tag Cloud */
+        #slide-7 {
+            flex-direction: column;
+            position: relative;
+            align-items: center;
+            justify-content: center;
+        }
+        #slide-7-title {
+            position: absolute;
+            top: 15px;
+            left: 50%;
+            transform: translateX(-50%);
+            z-index: 15;
+            font-size: 1.5rem;
+            font-weight: 600;
+            color: #eee;
+            pointer-events: none;
+        }
+        #cloud-controls {
+            position: absolute;
+            top: 60px;
+            left: 20px;
+            z-index: 10;
+            background: rgba(30, 30, 50, 0.9);
+            padding: 16px 24px;
+            border-radius: 10px;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.5);
+        }
+        #cloud-controls .mode-toggle {
+            display: flex;
+            gap: 4px;
+        }
+        .cloud-type-btn {
+            background: #333;
+            color: #aaa;
+            border: 1px solid #555;
+            padding: 6px 12px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 12px;
+        }
+        .cloud-type-btn.active {
+            background: #4ecdc4;
+            color: #111;
+            border-color: #4ecdc4;
+        }
+        #cloud-container {
+            width: 85%;
+            height: 80%;
+            position: relative;
+            overflow: hidden;
+        }
+        #cloud-container svg {
+            width: 100%;
+            height: 100%;
+        }
+        #cloud-container text {
+            cursor: default;
+            transition: opacity 0.2s;
+            font-weight: 600;
+        }
+        #cloud-container text:hover {
+            opacity: 0.7;
+        }
+        #cloud-tooltip {
+            position: absolute;
+            background: rgba(20, 20, 40, 0.95);
+            padding: 10px 14px;
+            border-radius: 8px;
+            font-size: 12px;
+            pointer-events: none;
+            display: none;
+            border: 1px solid #444;
+            z-index: 300;
+            max-width: 320px;
+        }
+        #cloud-tooltip strong {
+            color: #4ecdc4;
+            font-size: 13px;
+        }
+        #cloud-tooltip .cloud-tt-count {
+            color: #888;
+            margin-bottom: 6px;
+        }
+        #cloud-tooltip .band-cloud {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 4px 8px;
+            align-items: baseline;
+            margin-top: 4px;
+        }
+        #cloud-tooltip .band-cloud span {
+            font-weight: 500;
+            line-height: 1.3;
+        }
+    </style>
 </head>
 <body>
-    <div id="header-image">
-        <div id="header-text">
-            <h1>HYENY</h1>
-            <p>(a proč jsou tak úžasné)</p>
+    <!-- SLIDE 1: Title -->
+    <div class="slide active" id="slide-1">
+        <h1>Is the punk all the same?</h1>
+        <p>A data-driven exploration of punk lyrics across the world</p>
+        <p style="margin-top: 40px; font-size: 16px; color: #aaa;">Filip Vopálenský</p>
+        <p style="font-size: 14px; color: #666;">19. 5. 2026</p>
+    </div>
+
+    <!-- SLIDE 2: Data Pipeline -->
+    <div class="slide" id="slide-2">
+        <h2>Data &amp; Methodology</h2>
+        <div class="flow-container">
+            <!-- SVG animated connection lines -->
+            <svg class="flow-lines" width="1100" height="480">
+                <defs>
+                    <marker id="arrowhead" markerWidth="8" markerHeight="6" refX="7" refY="3" orient="auto">
+                        <polygon points="0 0, 8 3, 0 6" class="flow-arrow"/>
+                    </marker>
+                </defs>
+                <!-- AZ → Lyrics -->
+                <path class="flow-path" d="M 150 135 L 165 135 C 190 135, 200 240, 205 240 L 220 240" marker-end="url(#arrowhead)"/>
+                <!-- K → Lyrics -->
+                <path class="flow-path" d="M 150 345 L 165 345 C 190 345, 200 240, 205 240 L 220 240" marker-end="url(#arrowhead)" style="animation-delay: -0.3s"/>
+                <!-- Lyrics → Static -->
+                <path class="flow-path" d="M 370 240 L 385 240 C 410 240, 420 135, 425 135 L 440 135" marker-end="url(#arrowhead)" style="animation-delay: -0.6s"/>
+                <!-- Lyrics → LLM -->
+                <path class="flow-path" d="M 370 240 L 385 240 C 410 240, 420 345, 425 345 L 440 345" marker-end="url(#arrowhead)" style="animation-delay: -0.9s"/>
+                <!-- Static → Statistics -->
+                <path class="flow-path" d="M 590 135 L 605 135 C 630 135, 640 240, 645 240 L 660 240" marker-end="url(#arrowhead)" style="animation-delay: -0.4s"/>
+                <!-- LLM → Statistics -->
+                <path class="flow-path" d="M 590 345 L 605 345 C 630 345, 640 240, 645 240 L 660 240" marker-end="url(#arrowhead)" style="animation-delay: -0.7s"/>
+                <!-- Statistics → D3.js -->
+                <path class="flow-path" d="M 810 240 L 880 240" marker-end="url(#arrowhead)" style="animation-delay: -0.2s"/>
+            </svg>
+
+            <!-- Nodes: all 150×170, columns at x=0,220,440,660,880 -->
+            <div class="flow-node has-img" style="left: 0px; top: 50px;">
+                <img src="imgs/global-source.png" alt="AZLyrics">
+                <span class="node-label">AZLyrics<br><small style="color:#888">Global</small></span>
+                <span class="node-stats">100 bands · 1237 albums</span>
+            </div>
+            <div class="flow-node has-img" style="left: 0px; top: 260px;">
+                <img src="imgs/czech-source.png" alt="Písničky Akordy">
+                <span class="node-label">Písničky Akordy<br><small style="color:#888">Czech</small></span>
+                <span class="node-stats">40 bands · 361 albums</span>
+            </div>
+            <div class="flow-node center-node" style="left: 220px; top: 155px;">
+                <span class="node-label">Lyrics</span>
+                <span class="node-stats">19 672 songs</span>
+            </div>
+            <div class="flow-node has-img" style="left: 440px; top: 50px;">
+                <img src="imgs/static.png" alt="Python">
+                <span class="node-label">Static analysis<br><small style="color:#888">Python</small></span>
+                <span class="node-stats">word count, profanity,<br>pronouns, lexical diversity</span>
+            </div>
+            <div class="flow-node has-img" style="left: 440px; top: 260px;">
+                <img src="imgs/llm-analysis.png" alt="Qwen">
+                <span class="node-label">LLM analysis<br><small style="color:#888">Qwen 2.5</small></span>
+                <span class="node-stats">emotions, topics, entities,<br>narrative, rebellion, irony</span>
+            </div>
+            <div class="flow-node center-node" style="left: 660px; top: 155px;">
+                <span class="node-label">Statistics</span>
+                <span class="node-stats">35 features per song</span>
+            </div>
+            <div class="flow-node has-img" style="left: 880px; top: 155px;">
+                <img src="imgs/d3js.png" alt="D3.js">
+                <span class="node-label">D3.js</span>
+            </div>
         </div>
     </div>
 
-    <div id="main-menu">
-        <a class="menu-item" href="./personality-traits.html">
-            
-            <div class="menu-header one"></div>
-            <div class="menu-footer">
-                <h1>Zjistěte jaká hyena jste!</h1>
-                <br>
-                <p>Existuje spousta různých krasavců a krasavic. 
-                    <br>Která se k vám hodí nejvíce?</p>
-                    <br>
-                    <h3>KLIKNĚTE ZDE</h3>
+    <!-- SLIDE 3: Band Timeline -->
+    <div class="slide" id="slide-3">
+        <div id="slide-3-title">Band activity timeline</div>
+        <svg id="timeline-svg"></svg>
+    </div>
+
+    <!-- SLIDE 4: Emotions Radar -->
+    <div class="slide" id="slide-6">
+        <div id="slide-6-title">There is no joy in Joy division</div>
+        <div id="radar-controls">
+            <div class="mode-toggle">
+                <button class="r-mode-btn active" id="r-btn-artist">Artist</button>
+                <button class="r-mode-btn" id="r-btn-country">Country</button>
+            </div>
+            <label id="r-label-artist">Artist:
+                <select id="r-select-artist"></select>
+            </label>
+            <label id="r-label-country" style="display:none;">Country:
+                <select id="r-select-country"></select>
+            </label>
+            <div id="radar-year-display" style="display:none;"></div>
+            <button id="radar-play-btn" style="display:none;">&#9654; Play</button>
+            <label style="margin-top:8px; font-size:12px; display:flex; align-items:center; gap:6px; cursor:pointer;">
+                <input type="checkbox" id="radar-baseline-toggle"> Show baseline
+            </label>
+        </div>
+        <svg id="radar-svg"></svg>
+        <div id="radar-legend">
+            <h3>Albums</h3>
+            <div id="radar-legend-list"></div>
+            <div id="radar-gradient-bar" style="display:none; flex-direction:column; gap:6px; padding:4px 0;">
+                <div id="r-gradient-hover-year" style="text-align:center; font-size:12px; color:#ffd700; font-weight:600; min-height:16px;"></div>
+                <div id="r-gradient-track" style="width:100%; height:14px; border-radius:7px; cursor:pointer;"></div>
+                <div style="display:flex; justify-content:space-between; font-size:11px; color:#888;">
+                    <span id="r-gradient-year-min"></span>
+                    <span id="r-gradient-year-max"></span>
                 </div>
-        </a>
-        
-        <a class="menu-item" href="./more-info.html">
-        
-            <div class="menu-header two"></div>
-            <div class="menu-footer">
-                <h1>Chcete se dozvědět více?</h1>
-                <br>
-                <p>Hyeny jsou krásná zvířata. 
-                <br>Tak se o nich s námi pojďte dozvědět co nejvíce!</p>
-                <br>
-                <h3>STAČÍ JEDNO KLIKNUTÍ</h3>
             </div>
-        </a>
-        
-        
-    </div>
-    <div class="hyena-defense">
-        <article class="hyena-defense-border">
-            <input type="radio" id = "show-content" name="radio-group">
-            <div id="shown-part">
-                <h1>Hyena je tvor nepochopený</h1>
-                <h4>Autor: Marika Moučková</h4>
-                <section id="first-part">
-                    <h3>Pod palbou historických stereotypů</h3>
-                    <p>
-                        V průběhu naší evropské historie byla vždy ta samá pohádka - hyena, <strong>bestie bez charakteru</strong>, která vyhrabává mrtvoly z hrobů a hoduje na jejich kostech. Tento ošklivý obrázek má kořeny již u Aristotela v jeho díle <q>Historie zvířat</q>, ve kterém se praví, že hyeny jsou <em>zbabělé</em>, což údajně dokazuje velikost jejich srdcí v kontrastu k jejich tělům. Později text <q>Physiologus</q> ještě více prohlubuje negativní představu o hyenách, tentokrát v očích křesťanů, označuje je za zvířata <strong>nemorální</strong> a <strong>měnící své pohlaví</strong>. Středověké bestiáře tuto domněnku dále upevňují. A když se až v 18. století hermafroditismus u hyen vyvrátí, pro změnu se s odporem poukazuje na jejich <i>mrchožroutsví</i>… Jedna lež střídá druhou a co si s tím chudák hyena má počít?
-                    </p>
-                </section>
-                <p class="read-more-button">
-                    <label for="show-content">
-                        <span class="read-more-button-element">
-                            <svg viewBox="0 0 32 32" xmlns="http://www.w3.org/2000/svg"><g data-name="Layer 2" ><path d="M19,26a1,1,0,0,1-.71-.29,1,1,0,0,1,0-1.42L26.59,16l-8.3-8.29a1,1,0,0,1,1.42-1.42l9,9a1,1,0,0,1,0,1.42l-9,9A1,1,0,0,1,19,26Z"/><path d="M28,17H4a1,1,0,0,1,0-2H28a1,1,0,0,1,0,2Z"/></g><g><rect fill="none" height="32" width="32"/></g></svg>
-                            POKRAČOVAT VE ČTENÍ
-                        </span>
-                    </label>
-                </p>
-    
-            </div>
-        
-            <div id="hidden-part">
-                <section>
-                    <h3>Moderní doba - stejný přístup</h3>
-                    <p>
-                        Je to smutné, ale je to fakt - historicky pro nás byla hyena užitečná pouze jako ingredience do nápoje lásky, či odstrašující příběh pro kazatele nebo jako nehezké přirovnání pro básníky. A lépe si chuděra nevedla ani ve 20. století. Hemmingway popisuje opět hyeny jako odporné, smradlavé a zbabělé mrchožrouty s hermafroditními vlastnostmi. Ani dnes to není o moc lepší, stačí se podívat na Lvího krále od Walta Disneyho a hned si pomyslíme, že jsou to po čertech podlé potvory.
-                    </p>
-                </section>
-
-                <section>
-                    <h3>Cizincem ve vlastní zemi</h3>
-                    <p>
-                        Hyeny si nemohou vydechnout ani ve folklóru své domoviny. Například pokud se v Tanzanii narodí dítě za smíchu hyeny, bude z něj zloděj. V povídačkách kolujících po Namibii jsou to zase jen tupí, oboupohlavní hybridi, které pronásleduje smůla. Tedy s tou smůlou nelze než souhlasit… A proto já, jakožto zanícený milovník hyen, nemohu jinak, než se pokusit tyto ustálené předsudky a mylné představy vyvrátit.
-                    </p>
-                </section>
-
-                <section>
-                    <h3>Hyeny vs Lvi a kdo je ten horší</h3>
-                    <p>
-                        Začala bych u té nejrozšířenější, že hyeny jsou mrchožrouti. Všichni jsme jistě slyšeli o proradných hyenách kradoucích těžce vydřenou kořist lvům. Ve skutečnosti je to ve většině případů naopak, lvice kradou potravu hyenám. Vlastně pouze hyeny čabrakové a žíhané se převážně živí mršinami! Ostatní druhy jsou vysoce schopnými lovci, kteří sice sem tam nepohrdnou mrtvolkou, ale v jejich jídelníčku převažuje čerstvě ulovená potrava. Mimochodem kosti, nejsou u hyen zas tak oblíbené. Dostávají jich ovšem tolik, že jejich výkaly mají díky vápníku jasně bílou barvu.
-                    </p>
-                </section>
-
-                <section>
-                    <h3>Lovci s fištrónem</h3>
-                    <p>
-                        Jejich lovecká zdatnost boří další mýtus, tedy ten o jejich nízké inteligenci. Tam, kam to lvi dotáhnou hrubou silou, se hyeny musí dostat za pomoci vychytralých strategií a týmové práce. Schopnosti spolupracovat a sociálně žít jsou samozřejmě úzce propojené s chytrostí. To můžeme skvěle vidět u hyen skvrnitých. Ty žijí v klanech čítajících až 130 členů, které podléhají komplexní hierarchii, které kraluje jedna alfa samice. Těsně pod vůdčí samicí jsou poté její mláďata. Ta mají nejen privilegium, se jako první nažrat, ale dokonce bylo prokázáno, že se těmto mláďatům tvoří více testosteronu. V rámci klanu se pak hyeny dělí do menších podskupin zajišťujících ochranu území, lov a tak dále. Nejenže jsou schopné se navzájem rozeznat, pamatují si zároveň hlasy a společenské postavení každého člena. To je při jejich početnosti a rozsáhlému hlasovému repertoáru obdivuhodné.
-                    </p>
-                </section>
-
-                <section>
-                    <h3>Pohlavní jinakost</h3>
-                    <p>
-                        Fámy o hermafroditech vznikly kvůli domnělému penisu u samičky. Ve skutečnosti je to zvětšený klitoris se srostlými stydkými pysky. Ten má své výhody a nevýhody. Samice hyeny nemůže být znásilněna, protože pokud svůj úd nesloží, samec do ní nemůže vniknout. To ale také způsobuje potíže při porodu, u kterého se stává, že až 10% samiček vykrvácí, jelikož mládě otvor natrhne. Zajímavé je, že stále nevíme, proč to takhle ty hyeny mají…
-                    </p>
-                </section>
-
-                <section>
-                    <h3>Krok sun krok</h3>
-                    <p>
-                        Mnoho lidí se též vysmívá a opírá do podivného kroku, jímž se hyeny pohybují. Co ale většina lidí neví je, že jim tento způsob pohybu umožňuje běhat dlouhé vzdálenosti, aniž by se unavily.
-                    </p>
-                </section>
-
-                <p class="read-more-button">
-                    <label for="hide-content">
-                        <span class="read-more-button-element">
-                                <svg viewBox="0 0 32 32" xmlns="http://www.w3.org/2000/svg"><g data-name="Layer 2" id="Layer_2"><path d="M19,26a1,1,0,0,1-.71-.29,1,1,0,0,1,0-1.42L26.59,16l-8.3-8.29a1,1,0,0,1,1.42-1.42l9,9a1,1,0,0,1,0,1.42l-9,9A1,1,0,0,1,19,26Z"/><path d="M28,17H4a1,1,0,0,1,0-2H28a1,1,0,0,1,0,2Z"/></g><g><rect fill="none" height="32" width="32"/></g></svg>
-                                SKRÝT
-                        </span>
-                    </label>
-                </p>
-            </div>
-            <input type="radio" id="hide-content" name="radio-group">
-        </article>
-    </div>
-    
-    
-    <div id="video-part">
-        <div id="video-box">
-            <br>
-            <h2>Pohleďtě na jedno z nejkrásnějších videí na YouTube:</h2>
-            <br>
-            <iframe id="THE-video" src="https://www.youtube.com/embed/Qpy2rGXJ4eU?controls=1" title="YouTube video player" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
         </div>
     </div>
 
-
-    <div id="footer">
-        <a href="https://www.reddit.com/r/hyenas/">
-            <h2>
-                Připojte se k ostatním milovníkům hyen! Roztomilé fotky každý den.
-            </h2>
-        </a>
+    <!-- SLIDE 5: Chord Diagram (Topics) -->
+    <div class="slide" id="slide-5">
+        <div id="slide-5-title">Primary Topics across Bands</div>
+        <div id="chord-controls">
+            <label>Show top <span id="topic-count-value">15</span> topics</label>
+            <input type="range" id="topic-count-slider" min="10" max="50" value="15" step="1">
+            <div style="margin-top: 14px; border-top: 1px solid #444; padding-top: 12px;">
+                <label>Year range: <span id="year-range-label">all</span></label>
+                <div class="dual-range" id="year-range-container">
+                    <div class="track"></div>
+                    <div class="track-fill" id="year-track-fill"></div>
+                    <input type="range" id="year-min-slider" min="1970" max="2025" value="1980" step="1">
+                    <input type="range" id="year-max-slider" min="1970" max="2025" value="1989" step="1">
+                </div>
+            </div>
+            <div style="margin-top: 14px; border-top: 1px solid #444; padding-top: 12px;">
+                <label style="margin-bottom: 6px;">Country</label>
+                <div id="chord-country-list" style="max-height: 120px; overflow-y: auto;"></div>
+            </div>
+        </div>
+        <svg id="chord-svg"></svg>
+        <div id="topic-leaderboard">
+            <h3>Topic Leaderboard</h3>
+            <div id="lb-list"></div>
+        </div>
     </div>
-    
-    
 
+    <!-- SLIDE 6: Tag Cloud (Entities) -->
+    <div class="slide" id="slide-7">
+        <div id="slide-7-title">mother, jesus and johnny</div>
+        <div id="cloud-controls">
+            <div class="mode-toggle">
+                <button class="cloud-type-btn active" data-type="person">Person</button>
+                <button class="cloud-type-btn" data-type="location">Location</button>
+                <button class="cloud-type-btn" data-type="girl_name">Girl name</button>
+            </div>
+            <label style="font-size:12px; display:flex; align-items:center; gap:6px; cursor:pointer; margin-top:8px;">
+                <input type="checkbox" id="cloud-unique-toggle"> Unique per band
+            </label>
+        </div>
+        <div id="cloud-container"></div>
+        <div id="cloud-tooltip"></div>
+    </div>
+
+    <!-- SLIDE 7: Force Graph (Profanities) -->
+    <div class="slide" id="slide-4">
+        <div id="slide-4-title">Profanities across artists</div>
+        <div id="controls">
+            <label id="threshold-label">Min avg. profanities per 1000 words: <span id="threshold-value">90</span></label>
+            <input type="range" id="threshold" min="1" max="200" value="90" step="1">
+            <div style="margin-top: 12px; display: flex; align-items: center; gap: 10px;">
+                <span style="font-size: 13px;">Band nodes:</span>
+                <label class="switch">
+                    <input type="checkbox" id="pie-toggle">
+                    <span class="slider-toggle"></span>
+                </label>
+                <span style="font-size: 13px;" id="pie-label">Solid</span>
+            </div>
+            <div style="margin-top: 12px; display: flex; align-items: center; gap: 10px;">
+                <span style="font-size: 13px;">Language:</span>
+                <label class="switch">
+                    <input type="checkbox" id="lang-toggle">
+                    <span class="slider-toggle"></span>
+                </label>
+                <span style="font-size: 13px;" id="lang-label">Academic</span>
+            </div>
+            <div style="margin-top: 12px; display: none; align-items: center; gap: 10px;">
+                <span style="font-size: 13px;">Values:</span>
+                <label class="switch">
+                    <input type="checkbox" id="relative-toggle" checked>
+                    <span class="slider-toggle"></span>
+                </label>
+                <span style="font-size: 13px;" id="relative-label">Relative</span>
+            </div>
+            <div style="margin-top: 14px; border-top: 1px solid #444; padding-top: 12px;">
+                <label style="margin-bottom: 6px; font-size: 13px; color: #ccc;">Country</label>
+                <div id="country-list" style="max-height: 120px; overflow-y: auto;"></div>
+            </div>
+        </div>
+        <div id="filters">
+            <h3>Profanity Categories</h3>
+            <div id="filter-list"></div>
+        </div>
+        <div id="legend">
+            <div style="margin-bottom: 4px; color: #aaa;">Node size = total usage count</div>
+            <div style="color: #aaa;">Edge width = band's usage of that profanity</div>
+            <div style="margin-top: 6px; color: #aaa;">Click nodes to drill down</div>
+        </div>
+        <svg id="graph"></svg>
+    </div>
+
+    <div class="tooltip" id="tooltip"></div>
+
+    <!-- SLIDE 8: Conclusion -->
+    <div class="slide" id="slide-8">
+        <div id="slide-8-title">Is the punk all the same?</div>
+        <p style="font-size: 8rem; font-weight: 900; letter-spacing: 0.1em; margin: 0; background: linear-gradient(135deg, #4ecdc4, #ff6b6b); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text;">YEAH<sup style="font-size: 2rem; vertical-align: super;">*</sup></p>
+        <p style="font-size: 1.4rem; color: #888; margin-top: 30px;">* (kinda)</p>
+    </div>
+
+    <div id="drilldown">
+        <button id="drilldown-close">&times;</button>
+        <div id="drilldown-header"><h2 id="drilldown-title"></h2><p>Circle size = word usage count. Click outside or &times; to close.</p></div>
+        <svg id="drilldown-svg"></svg>
+    </div>
+
+    <!-- Navigation -->
+    <button class="nav-btn" id="nav-prev" disabled>&larr;</button>
+    <button class="nav-btn" id="nav-next">&rarr;</button>
+    <div id="slide-counter">1 / 8</div>
+
+    <script src="https://d3js.org/d3.v7.min.js"></script>
+    <script>
+        // ===== FLOW CONTAINER SCALING =====
+        (function() {
+            const fc = document.querySelector('.flow-container');
+            function scaleFlow() {
+                const pad = 120;
+                const availW = window.innerWidth - pad;
+                const availH = window.innerHeight - 200;
+                const sx = Math.min(1, availW / 1100);
+                const sy = Math.min(1, availH / 480);
+                const s = Math.min(sx, sy);
+                fc.style.transform = s < 1 ? `scale(${s})` : '';
+            }
+            scaleFlow();
+            window.addEventListener('resize', scaleFlow);
+        })();
+
+        // ===== SLIDE NAVIGATION =====
+        const slides = document.querySelectorAll('.slide');
+        const totalSlides = slides.length;
+        let currentSlide = 0;
+
+        const prevBtn = document.getElementById('nav-prev');
+        const nextBtn = document.getElementById('nav-next');
+        const counter = document.getElementById('slide-counter');
+
+        function goToSlide(n) {
+            if (n < 0 || n >= totalSlides) return;
+            slides[currentSlide].classList.remove('active');
+            currentSlide = n;
+            slides[currentSlide].classList.add('active');
+            prevBtn.disabled = currentSlide === 0;
+            nextBtn.disabled = currentSlide === totalSlides - 1;
+            counter.textContent = `${currentSlide + 1} / ${totalSlides}`;
+
+            // Initialize timeline when first visiting slide 3
+            if (currentSlide === 2 && !timelineInitialized) {
+                initTimeline();
+            }
+            // Initialize radar when first visiting slide 4
+            if (currentSlide === 3 && !radarInitialized) {
+                initRadar();
+            }
+            // Initialize chord diagram when first visiting slide 5
+            if (currentSlide === 4 && !chordInitialized) {
+                initChord();
+            }
+            // Initialize tag cloud when first visiting slide 6
+            if (currentSlide === 5 && !cloudInitialized) {
+                initCloud();
+            }
+            // Initialize graph when first visiting slide 7
+            if (currentSlide === 6 && !graphInitialized) {
+                initGraph();
+            }
+        }
+
+        prevBtn.addEventListener('click', () => goToSlide(currentSlide - 1));
+        nextBtn.addEventListener('click', () => goToSlide(currentSlide + 1));
+
+        document.addEventListener('keydown', (e) => {
+            // Don't navigate if drilldown is open
+            if (document.getElementById('drilldown').classList.contains('active')) {
+                if (e.key === 'Escape') {
+                    document.getElementById('drilldown').classList.remove('active');
+                }
+                return;
+            }
+            if (e.key === 'ArrowRight' || e.key === 'Right') goToSlide(currentSlide + 1);
+            if (e.key === 'ArrowLeft' || e.key === 'Left') goToSlide(currentSlide - 1);
+        });
+
+        // ===== BAND TIMELINE (lazy init) =====
+        let timelineInitialized = false;
+
+        function initTimeline() {
+            timelineInitialized = true;
+
+            d3.text("songs.csv").then(raw => {
+                const sep = d3.dsvFormat(";");
+                const rows = sep.parse(raw);
+
+                // Build band data: country, first year, last year
+                const bandData = new Map();
+                rows.forEach(r => {
+                    const year = +r.year;
+                    if (!year) return;
+                    if (!bandData.has(r.band)) {
+                        bandData.set(r.band, { band: r.band, country: r.country, minYear: year, maxYear: year, albums: new Map() });
+                    } else {
+                        const d = bandData.get(r.band);
+                        if (year < d.minYear) d.minYear = year;
+                        if (year > d.maxYear) d.maxYear = year;
+                    }
+                    // Track albums
+                    const bd = bandData.get(r.band);
+                    const albumKey = r.album;
+                    if (!bd.albums.has(albumKey)) bd.albums.set(albumKey, { year, tracks: 0 });
+                    bd.albums.get(albumKey).tracks++;
+                });
+
+                // Sort by country then alphabetically
+                const bands = [...bandData.values()]
+                    .filter(d => d.country && d.minYear && d.maxYear)
+                    .sort((a, b) => a.country.localeCompare(b.country) || a.band.localeCompare(b.band));
+
+                const container = document.getElementById("slide-3");
+                const svgEl = document.getElementById("timeline-svg");
+                const W = svgEl.clientWidth || container.clientWidth * 0.9;
+                const H = svgEl.clientHeight || container.clientHeight * 0.85;
+
+                const margin = { top: 30, right: 20, bottom: 80, left: 50 };
+                const width = W - margin.left - margin.right;
+                const height = H - margin.top - margin.bottom;
+
+                const svg = d3.select("#timeline-svg")
+                    .attr("width", W).attr("height", H);
+
+                const g = svg.append("g")
+                    .attr("transform", `translate(${margin.left},${margin.top})`);
+
+                // Y scale: years
+                const allYears = bands.flatMap(d => [d.minYear, d.maxYear]);
+                const yMin = d3.min(allYears);
+                const yMax = d3.max(allYears);
+                const yScale = d3.scaleLinear()
+                    .domain([yMin - 1, yMax + 1])
+                    .range([height, 0]);
+
+                // Y axis
+                const yAxisG = g.append("g").attr("class", "y-axis")
+                    .call(d3.axisLeft(yScale).tickFormat(d3.format("d")).ticks(Math.min(20, yMax - yMin)));
+                yAxisG.selectAll("text").attr("fill", "#aaa").attr("font-size", "10px");
+                yAxisG.selectAll("path, line").attr("stroke", "#444");
+
+                // Country grouping
+                const countries = [...new Set(bands.map(d => d.country))];
+                const countryColor = d3.scaleOrdinal(d3.schemeTableau10).domain(countries);
+
+                // Group bands by country with indices
+                const countryGroups = [];
+                let ci = 0;
+                countries.forEach(c => {
+                    const members = bands.filter(d => d.country === c);
+                    countryGroups.push({ country: c, bands: members, startIdx: ci, endIdx: ci + members.length - 1 });
+                    ci += members.length;
+                });
+
+                const tooltip = d3.select("#tooltip");
+                const barsG = g.append("g").attr("class", "bars-layer");
+                const bracketsG = g.append("g").attr("class", "brackets-layer");
+                const labelsG = g.append("g").attr("class", "labels-layer");
+
+                let activeCountry = null;
+
+                function layout(focusCountry) {
+                    // Compute x positions for each band
+                    const positions = new Array(bands.length);
+                    const barWidths = new Array(bands.length);
+
+                    if (!focusCountry) {
+                        // Default: equal distribution
+                        const bw = width / bands.length;
+                        bands.forEach((d, i) => {
+                            positions[i] = i * bw;
+                            barWidths[i] = bw * 0.7;
+                        });
+                    } else {
+                        // Focused: 80% to focused group, 20% split among rest
+                        const focusGroup = countryGroups.find(cg => cg.country === focusCountry);
+                        const focusCount = focusGroup.bands.length;
+                        const otherCount = bands.length - focusCount;
+                        const focusWidth = width * 0.85;
+                        const otherWidth = width * 0.15;
+
+                        // Left groups: countries before focused
+                        const leftGroups = countryGroups.filter(cg => cg.startIdx < focusGroup.startIdx);
+                        const leftCount = leftGroups.reduce((s, cg) => s + cg.bands.length, 0);
+                        // Right groups: countries after focused
+                        const rightGroups = countryGroups.filter(cg => cg.startIdx > focusGroup.startIdx);
+                        const rightCount = rightGroups.reduce((s, cg) => s + cg.bands.length, 0);
+
+                        const leftSpace = otherCount > 0 ? otherWidth * (leftCount / otherCount) : 0;
+                        const rightSpace = otherCount > 0 ? otherWidth * (rightCount / otherCount) : 0;
+                        const focusStart = leftSpace;
+
+                        // Position left bands
+                        if (leftCount > 0) {
+                            const bw = leftSpace / leftCount;
+                            let x = 0;
+                            leftGroups.forEach(cg => {
+                                cg.bands.forEach((d, bi) => {
+                                    const idx = cg.startIdx + bi;
+                                    positions[idx] = x;
+                                    barWidths[idx] = bw * 0.5;
+                                    x += bw;
+                                });
+                            });
+                        }
+                        // Position focused bands
+                        const fbw = focusWidth / focusCount;
+                        focusGroup.bands.forEach((d, bi) => {
+                            const idx = focusGroup.startIdx + bi;
+                            positions[idx] = focusStart + bi * fbw;
+                            barWidths[idx] = fbw * 0.7;
+                        });
+                        // Position right bands
+                        if (rightCount > 0) {
+                            const bw = rightSpace / rightCount;
+                            let x = focusStart + focusWidth;
+                            rightGroups.forEach(cg => {
+                                cg.bands.forEach((d, bi) => {
+                                    const idx = cg.startIdx + bi;
+                                    positions[idx] = x;
+                                    barWidths[idx] = bw * 0.5;
+                                    x += bw;
+                                });
+                            });
+                        }
+                    }
+                    return { positions, barWidths };
+                }
+
+                function render(focusCountry, animate) {
+                    const { positions, barWidths } = layout(focusCountry);
+                    const dur = animate ? 400 : 0;
+
+                    // Guide lines (dotted lines from bottom to bar start)
+                    const guideSel = barsG.selectAll(".guide-line").data(bands, d => d.band);
+                    guideSel.enter().append("line")
+                        .attr("class", "guide-line")
+                        .attr("stroke", "#555")
+                        .attr("stroke-width", 1)
+                        .attr("stroke-dasharray", "3,4")
+                        .attr("stroke-opacity", 0.7)
+                        .merge(guideSel)
+                        .transition().duration(dur).ease(d3.easeCubicOut)
+                        .attr("x1", (d, i) => positions[i] + barWidths[i] / 2)
+                        .attr("x2", (d, i) => positions[i] + barWidths[i] / 2)
+                        .attr("y1", height)
+                        .attr("y2", d => yScale(d.minYear));
+
+                    // Bars
+                    const barSel = barsG.selectAll(".timeline-bar").data(bands, d => d.band);
+                    barSel.enter().append("rect")
+                        .attr("class", "timeline-bar")
+                        .attr("rx", 2)
+                        .attr("fill", d => countryColor(d.country))
+                        .merge(barSel)
+                        .transition().duration(dur).ease(d3.easeCubicOut)
+                        .attr("x", (d, i) => positions[i])
+                        .attr("y", d => yScale(d.maxYear))
+                        .attr("width", (d, i) => barWidths[i])
+                        .attr("height", d => Math.max(2, yScale(d.minYear) - yScale(d.maxYear)));
+
+                    // Album dots & hover (only in focused view)
+                    barsG.selectAll(".album-dot").remove();
+                    barsG.selectAll(".album-hit").remove();
+                    labelsG.selectAll(".album-popup").remove();
+
+                    if (focusCountry) {
+                        const dotDelay = animate ? dur + 50 : 0;
+                        const focusGroup = countryGroups.find(cg => cg.country === focusCountry);
+                        const bandDataMap = new Map();
+                        focusGroup.bands.forEach((d, bi) => {
+                            const idx = focusGroup.startIdx + bi;
+                            const cx = positions[idx] + barWidths[idx] / 2;
+                            const bw = barWidths[idx];
+                            const albumList = [...d.albums.entries()].sort((a, b) => a[1].year - b[1].year);
+                            bandDataMap.set(d.band, { d, idx, cx, bw, albumList });
+
+                            // Draw dots with fade-in after bars settle
+                            albumList.forEach(([name, info], ai) => {
+                                const cy = yScale(info.year);
+                                barsG.append("circle")
+                                    .attr("class", "album-dot")
+                                    .attr("cx", cx).attr("cy", cy)
+                                    .attr("r", 0)
+                                    .attr("fill", d3.color(countryColor(d.country)).darker(1.5))
+                                    .attr("stroke", "#fff").attr("stroke-width", 0.5)
+                                    .style("opacity", 0)
+                                    .style("pointer-events", "none")
+                                    .transition().delay(dotDelay + ai * 30).duration(300)
+                                    .attr("r", 3.5)
+                                    .style("opacity", 1);
+                            });
+
+                            // Hit area for the whole bar
+                            barsG.append("rect")
+                                .attr("class", "album-hit")
+                                .attr("data-band", d.band)
+                                .attr("x", positions[idx])
+                                .attr("y", yScale(d.maxYear))
+                                .attr("width", bw)
+                                .attr("height", Math.max(2, yScale(d.minYear) - yScale(d.maxYear)))
+                                .attr("fill", "transparent")
+                                .style("cursor", "pointer");
+                        });
+
+                        // Shared album popup show/hide
+                        function showAlbums(bandName) {
+                            labelsG.selectAll(".album-popup").remove();
+                            const info = bandDataMap.get(bandName);
+                            if (!info) return;
+                            const { cx, bw, albumList } = info;
+                            albumList.forEach(([name, albumInfo], ai) => {
+                                const py = yScale(albumInfo.year);
+                                const side = ai % 2 === 0 ? 1 : -1;
+                                const offsetX = side * (bw / 2 + 8);
+                                const popG = labelsG.append("g")
+                                    .attr("class", "album-popup")
+                                    .style("opacity", 0);
+                                popG.append("line")
+                                    .attr("x1", cx).attr("y1", py)
+                                    .attr("x2", cx + offsetX).attr("y2", py)
+                                    .attr("stroke", "#888").attr("stroke-width", 0.7)
+                                    .attr("stroke-dasharray", "2,2");
+                                const text = `${name} (${albumInfo.year}) – ${albumInfo.tracks} tracks`;
+                                const tw = text.length * 5.5 + 10;
+                                const tx = side === 1 ? cx + offsetX + 2 : cx + offsetX - tw - 2;
+                                popG.append("rect")
+                                    .attr("x", tx - 3).attr("y", py - 9)
+                                    .attr("width", tw + 6).attr("height", 16)
+                                    .attr("rx", 3)
+                                    .attr("fill", "rgba(20,20,40,0.9)")
+                                    .attr("stroke", "#555").attr("stroke-width", 0.5);
+                                popG.append("text")
+                                    .attr("x", tx).attr("y", py + 3)
+                                    .attr("font-size", "9px")
+                                    .attr("fill", "#ddd")
+                                    .text(text);
+                                popG.transition().delay(ai * 30).duration(150)
+                                    .style("opacity", 1);
+                            });
+                        }
+                        function hideAlbums() {
+                            labelsG.selectAll(".album-popup")
+                                .transition().duration(100).style("opacity", 0).remove();
+                        }
+
+                        // Unified highlight: dims bars, bolds label, shows albums
+                        function highlightBand(bandName) {
+                            barsG.selectAll(".timeline-bar")
+                                .style("opacity", b => b.band === bandName ? 1 : 0.3);
+                            labelsG.selectAll(".band-label")
+                                .attr("fill", function() { return d3.select(this).attr("data-band") === bandName ? "#fff" : "#666"; })
+                                .style("font-weight", function() { return d3.select(this).attr("data-band") === bandName ? "bold" : "normal"; });
+                            showAlbums(bandName);
+                        }
+                        function unhighlightBand() {
+                            barsG.selectAll(".timeline-bar").style("opacity", 0.85);
+                            labelsG.selectAll(".band-label").attr("fill", "#ccc").style("font-weight", "normal");
+                            hideAlbums();
+                        }
+
+                        // Attach to bar hit areas
+                        barsG.selectAll(".album-hit").each(function() {
+                            const bandName = d3.select(this).attr("data-band");
+                            d3.select(this)
+                                .on("mouseenter", () => highlightBand(bandName))
+                                .on("mouseleave", unhighlightBand);
+                        });
+
+                        // Band labels (positioned below bar)
+                        labelsG.selectAll(".band-label").remove();
+                        const focusGroup2 = countryGroups.find(cg => cg.country === focusCountry);
+                        focusGroup2.bands.forEach((d, bi) => {
+                            const idx = focusGroup2.startIdx + bi;
+                            const cx = positions[idx] + barWidths[idx] / 2;
+                            labelsG.append("text")
+                                .attr("class", "band-label")
+                                .attr("data-band", d.band)
+                                .attr("x", cx)
+                                .attr("y", height + 28)
+                                .attr("text-anchor", "start")
+                                .attr("transform", `rotate(-50, ${cx}, ${height + 28})`)
+                                .attr("font-size", "9px")
+                                .attr("fill", "#ccc")
+                                .text(d.band)
+                                .style("cursor", "pointer")
+                                .style("opacity", 0)
+                                .transition().delay(200).duration(300)
+                                .style("opacity", 1);
+                        });
+
+                        // Attach highlight to band labels
+                        labelsG.selectAll(".band-label").each(function() {
+                            const bandName = d3.select(this).attr("data-band");
+                            d3.select(this)
+                                .on("mouseenter", () => highlightBand(bandName))
+                                .on("mouseleave", unhighlightBand);
+                        });
+                    }
+
+                    // Invisible hit areas for tooltip (non-focused)
+                    barsG.selectAll(".timeline-hit").remove();
+                    if (!focusCountry) {
+                        labelsG.selectAll(".band-label").remove();
+                        bands.forEach((d, i) => {
+                            barsG.append("rect")
+                                .attr("class", "timeline-hit")
+                                .attr("x", positions[i])
+                                .attr("y", yScale(d.maxYear))
+                                .attr("width", Math.max(barWidths[i], 4))
+                                .attr("height", Math.max(2, yScale(d.minYear) - yScale(d.maxYear)))
+                                .attr("fill", "transparent")
+                                .on("mouseover", (event) => {
+                                    tooltip.style("display", "block")
+                                        .html(`<strong>${d.band}</strong><br>${d.country}<br>${d.minYear} – ${d.maxYear}`);
+                                })
+                                .on("mousemove", (event) => {
+                                    tooltip.style("left", (event.pageX + 12) + "px")
+                                        .style("top", (event.pageY - 10) + "px");
+                                })
+                                .on("mouseout", () => { tooltip.style("display", "none"); });
+                        });
+                    }
+
+                    // Country brackets
+                    bracketsG.selectAll("*").remove();
+                    const bracketY = height + (focusCountry ? 55 : 35);
+                    countryGroups.forEach(cg => {
+                        const x0 = positions[cg.startIdx];
+                        const lastIdx = cg.startIdx + cg.bands.length - 1;
+                        const x1 = positions[lastIdx] + barWidths[lastIdx];
+                        const midX = (x0 + x1) / 2;
+                        const color = countryColor(cg.country);
+                        const isFocused = cg.country === focusCountry;
+
+                        bracketsG.append("line")
+                            .attr("x1", x0).attr("x2", x1)
+                            .attr("y1", bracketY).attr("y2", bracketY)
+                            .attr("stroke", color).attr("stroke-width", isFocused ? 3 : 2)
+                            .attr("stroke-opacity", isFocused ? 1 : 0.6);
+                        bracketsG.append("line")
+                            .attr("x1", x0).attr("x2", x0)
+                            .attr("y1", bracketY - 4).attr("y2", bracketY + 4)
+                            .attr("stroke", color).attr("stroke-width", 2);
+                        bracketsG.append("line")
+                            .attr("x1", x1).attr("x2", x1)
+                            .attr("y1", bracketY - 4).attr("y2", bracketY + 4)
+                            .attr("stroke", color).attr("stroke-width", 2);
+                        bracketsG.append("text")
+                            .attr("x", midX).attr("y", bracketY + 18)
+                            .attr("text-anchor", "middle")
+                            .attr("class", "country-label")
+                            .attr("fill", color)
+                            .attr("font-size", isFocused ? "13px" : "11px")
+                            .attr("font-weight", "600")
+                            .text(cg.country);
+
+                        // Hover area for bracket
+                        bracketsG.append("rect")
+                            .attr("x", x0).attr("y", bracketY - 10)
+                            .attr("width", x1 - x0).attr("height", 35)
+                            .attr("fill", "transparent")
+                            .style("cursor", "pointer")
+                            .on("mouseenter", () => {
+                                if (activeCountry === cg.country) return;
+                                activeCountry = cg.country;
+                                render(cg.country, true);
+                            });
+                    });
+
+                    // Background click to reset
+                    svg.on("click", (event) => {
+                        if (event.target === svgEl || event.target.tagName === "svg") {
+                            if (activeCountry) {
+                                activeCountry = null;
+                                render(null, true);
+                            }
+                        }
+                    });
+                }
+
+                // Also reset on mouseleave from the entire SVG
+                svg.on("mouseleave", () => {
+                    if (activeCountry) {
+                        activeCountry = null;
+                        render(null, true);
+                    }
+                });
+
+                render(null, false);
+            });
+        }
+
+        // ===== FORCE GRAPH (lazy init) =====
+        let graphInitialized = false;
+
+        function initGraph() {
+            graphInitialized = true;
+
+            const graphContainer = document.getElementById('slide-4');
+            const width = window.innerWidth;
+            const height = window.innerHeight;
+
+            const svg = d3.select("#graph")
+                .attr("width", width)
+                .attr("height", height);
+
+            const g = svg.append("g");
+
+            svg.call(d3.zoom()
+                .scaleExtent([0.1, 8])
+                .on("zoom", (event) => g.attr("transform", event.transform))
+            );
+
+            const tooltip = d3.select("#tooltip");
+
+            const profanityColors = {
+                "asshole": "#ff6b6b",
+                "bastard": "#ffa502",
+                "damn": "#ffd700",
+                "shit": "#a0522d",
+                "bitch": "#ff69b4",
+                "fuck": "#e74c3c",
+                "violence": "#9b59b6",
+                "other": "#95a5a6",
+                "idiot": "#1abc9c",
+                "hate_conflict": "#e67e22",
+                "disgust": "#27ae60",
+                "religious": "#3498db",
+                "alcohol_drugs": "#8e44ad",
+                "sexual": "#fd79a8"
+            };
+
+            const enabledProfanities = new Set(Object.keys(profanityColors));
+            let punkMode = false;
+            let relativeMode = true;
+
+            function censor(word) {
+                if (punkMode || !word || word.length < 2) return word;
+                return word[0] + '*' + word.slice(2);
+            }
+
+            Promise.all([
+                d3.text("deduplicated_profanities.csv"),
+                d3.text("songs.csv")
+            ]).then(([raw, songsRaw]) => {
+                const rows = d3.dsvFormat(";").parse(raw);
+                const songsRows = d3.dsvFormat(";").parse(songsRaw);
+
+                // Build song word count lookup
+                const MIN_WORD_COUNT = 10; // skip songs with fewer words in relative mode
+                const songWordCount = new Map();
+                const bandWordCount = new Map(); // total word count per band
+                songsRows.forEach(r => {
+                    const key = `${r.band}\t${r.album}\t${r.song}`;
+                    const wc = +r['static.statistics.word_count'] || 0;
+                    songWordCount.set(key, wc);
+                    if (wc >= MIN_WORD_COUNT) {
+                        bandWordCount.set(r.band, (bandWordCount.get(r.band) || 0) + wc);
+                    }
+                });
+
+                const bandCountryMap = new Map();
+                const bandCountryCounts = d3.rollup(songsRows, v => v.length, d => d.band, d => d.country);
+                bandCountryCounts.forEach((countryMap, band) => {
+                    let maxCount = 0, maxCountry = "unknown";
+                    countryMap.forEach((count, country) => {
+                        if (count > maxCount) { maxCount = count; maxCountry = country; }
+                    });
+                    bandCountryMap.set(band, maxCountry);
+                });
+
+                const allCountries = [...new Set([...bandCountryMap.values()])].sort();
+                let selectedCountry = "ALL";
+
+                const countryList = document.getElementById("country-list");
+                const allLabel = document.createElement("label");
+                allLabel.innerHTML = `<input type="radio" name="country" value="ALL" checked> ALL`;
+                countryList.appendChild(allLabel);
+                allCountries.forEach(c => {
+                    const lbl = document.createElement("label");
+                    lbl.innerHTML = `<input type="radio" name="country" value="${c}"> ${c}`;
+                    countryList.appendChild(lbl);
+                });
+                countryList.addEventListener("change", (e) => {
+                    if (e.target.name === "country") {
+                        selectedCountry = e.target.value;
+                        recompute();
+                        render(+document.getElementById("threshold").value);
+                    }
+                });
+
+                let bandProfanity, bandTotals, profanityTotals, filteredRows;
+
+                function recompute() {
+                    if (selectedCountry === "ALL") {
+                        filteredRows = rows;
+                    } else {
+                        const bandsInCountry = new Set(
+                            [...bandCountryMap.entries()]
+                                .filter(([, c]) => c === selectedCountry)
+                                .map(([b]) => b)
+                        );
+                        filteredRows = rows.filter(r => bandsInCountry.has(r.band));
+                    }
+
+                    if (!relativeMode) {
+                        // Absolute mode
+                        bandProfanity = d3.rollup(filteredRows,
+                            v => d3.sum(v, d => +d.count),
+                            d => d.band,
+                            d => d.aggregated_word
+                        );
+
+                        bandTotals = new Map();
+                        bandProfanity.forEach((profMap, band) => {
+                            let total = 0;
+                            profMap.forEach(count => total += count);
+                            bandTotals.set(band, total);
+                        });
+
+                        profanityTotals = new Map();
+                        bandProfanity.forEach((profMap) => {
+                            profMap.forEach((count, prof) => {
+                                profanityTotals.set(prof, (profanityTotals.get(prof) || 0) + count);
+                            });
+                        });
+                    } else {
+                        // Relative mode: per-song ratio → album avg → band avg
+                        // Group: band → album → song → prof → count
+                        const nested = new Map();
+                        filteredRows.forEach(r => {
+                            if (!nested.has(r.band)) nested.set(r.band, new Map());
+                            const bMap = nested.get(r.band);
+                            if (!bMap.has(r.album)) bMap.set(r.album, new Map());
+                            const aMap = bMap.get(r.album);
+                            if (!aMap.has(r.song)) aMap.set(r.song, new Map());
+                            const sMap = aMap.get(r.song);
+                            sMap.set(r.aggregated_word, (sMap.get(r.aggregated_word) || 0) + (+r.count));
+                        });
+
+                        bandProfanity = new Map();
+                        bandTotals = new Map();
+                        profanityTotals = new Map();
+
+                        nested.forEach((albumsMap, band) => {
+                            const albumAvgs = [];
+                            albumsMap.forEach((songsMap, album) => {
+                                const songRatios = new Map();
+                                songsMap.forEach((profMap, song) => {
+                                    const key = `${band}\t${album}\t${song}`;
+                                    const wc = songWordCount.get(key) || 0;
+                                    if (wc < MIN_WORD_COUNT) return;
+                                    profMap.forEach((count, prof) => {
+                                        if (!songRatios.has(prof)) songRatios.set(prof, []);
+                                        songRatios.get(prof).push(count / wc * 1000);
+                                    });
+                                });
+                                const albumAvg = new Map();
+                                songRatios.forEach((ratios, prof) => albumAvg.set(prof, d3.mean(ratios)));
+                                albumAvgs.push(albumAvg);
+                            });
+
+                            const allProfs = new Set();
+                            albumAvgs.forEach(m => m.forEach((_, p) => allProfs.add(p)));
+
+                            const bandProfMap = new Map();
+                            allProfs.forEach(prof => {
+                                const vals = albumAvgs.filter(m => m.has(prof)).map(m => m.get(prof));
+                                if (vals.length > 0) bandProfMap.set(prof, d3.mean(vals));
+                            });
+
+                            bandProfanity.set(band, bandProfMap);
+                            let total = 0;
+                            bandProfMap.forEach(v => total += v);
+                            bandTotals.set(band, total);
+                        });
+
+                        // Compute profanityTotals as global rate: sum(occurrences) / sum(word_counts) * 1000
+                        const filteredBandsSet = new Set([...nested.keys()]);
+                        let totalWc = 0;
+                        filteredBandsSet.forEach(band => { totalWc += bandWordCount.get(band) || 0; });
+                        const profOccurrences = new Map();
+                        filteredRows.forEach(r => {
+                            const key = `${r.band}\t${r.album}\t${r.song}`;
+                            const wc = songWordCount.get(key) || 0;
+                            if (wc < MIN_WORD_COUNT) return;
+                            const prof = r.aggregated_word;
+                            profOccurrences.set(prof, (profOccurrences.get(prof) || 0) + (+r.count));
+                        });
+                        profOccurrences.forEach((count, prof) => {
+                            profanityTotals.set(prof, totalWc > 0 ? count / totalWc * 1000 : 0);
+                        });
+                    }
+                }
+
+                recompute();
+
+                const allProfanities = [...profanityTotals.keys()].sort();
+
+                const filterList = document.getElementById("filter-list");
+                allProfanities.forEach(prof => {
+                    const color = profanityColors[prof] || "#999";
+                    const item = document.createElement("div");
+                    item.className = "filter-item";
+                    item.dataset.prof = prof;
+                    item.innerHTML = `<div class="filter-dot" style="background:${color}"></div><span class="filter-label">${censor(prof)}</span>`;
+                    item.addEventListener("click", () => {
+                        if (enabledProfanities.has(prof)) {
+                            enabledProfanities.delete(prof);
+                            item.classList.add("disabled");
+                        } else {
+                            enabledProfanities.add(prof);
+                            item.classList.remove("disabled");
+                        }
+                        render(+document.getElementById("threshold").value);
+                    });
+                    filterList.appendChild(item);
+                });
+
+                function buildGraph(threshold) {
+                    const filteredBands = [...bandTotals.entries()]
+                        .filter(([, total]) => total >= threshold)
+                        .map(([band]) => band);
+
+                    const activeProfanities = new Set();
+                    const edges = [];
+
+                    filteredBands.forEach(band => {
+                        const profMap = bandProfanity.get(band);
+                        if (profMap) {
+                            profMap.forEach((count, prof) => {
+                                if (!enabledProfanities.has(prof)) return;
+                                activeProfanities.add(prof);
+                                edges.push({ source: `band_${band}`, target: `prof_${prof}`, weight: count, prof: prof });
+                            });
+                        }
+                    });
+
+                    const bandsWithEdges = new Set(edges.map(e => e.source));
+                    const nodes = [];
+
+                    filteredBands.forEach(band => {
+                        if (!bandsWithEdges.has(`band_${band}`)) return;
+                        nodes.push({ id: `band_${band}`, label: band, type: "band", total: bandTotals.get(band) });
+                    });
+
+                    activeProfanities.forEach(prof => {
+                        nodes.push({ id: `prof_${prof}`, label: prof, type: "profanity", prof: prof, total: profanityTotals.get(prof) });
+                    });
+
+                    return { nodes, edges };
+                }
+
+                const bandSizeScale = d3.scaleSqrt().range([4, 30]);
+                const profSizeScale = d3.scaleSqrt().range([20, 55]);
+                const edgeWidthScale = d3.scaleSqrt().range([0.5, 6]);
+
+                let simulation;
+                let showPie = false;
+                const pie = d3.pie().sort(null).value(d => d.value);
+                const arc = d3.arc();
+
+                function render(threshold) {
+                    const { nodes, edges } = buildGraph(threshold);
+
+                    bandSizeScale.domain([0, d3.max([...bandTotals.values()]) || 1]);
+                    profSizeScale.domain([0, d3.max([...profanityTotals.values()]) || 1]);
+                    edgeWidthScale.domain([1, d3.max([...bandProfanity.values()].flatMap(m => [...m.values()])) || 1]);
+
+                    g.selectAll("*").remove();
+                    if (simulation) simulation.stop();
+
+                    const link = g.append("g")
+                        .selectAll("line")
+                        .data(edges)
+                        .join("line")
+                        .attr("class", "link")
+                        .attr("stroke", d => profanityColors[d.prof] || "#666")
+                        .attr("stroke-width", d => edgeWidthScale(d.weight));
+
+                    const node = g.append("g")
+                        .selectAll("g")
+                        .data(nodes)
+                        .join("g")
+                        .attr("class", "node")
+                        .call(d3.drag()
+                            .on("start", dragstarted)
+                            .on("drag", dragged)
+                            .on("end", dragended)
+                        );
+
+                    node.filter(d => d.type === "profanity")
+                        .append("circle")
+                        .attr("r", d => profSizeScale(d.total))
+                        .attr("fill", d => profanityColors[d.prof] || "#999")
+                        .attr("stroke", d => d3.color(profanityColors[d.prof] || "#999").darker(0.8))
+                        .attr("stroke-width", 1.5)
+                        .attr("opacity", 0.85);
+
+                    const bandNodes = node.filter(d => d.type === "band");
+
+                    if (!showPie) {
+                        bandNodes.append("circle")
+                            .attr("r", d => bandSizeScale(d.total))
+                            .attr("fill", "#4ecdc4")
+                            .attr("stroke", "#2a9d8f")
+                            .attr("stroke-width", 1.5)
+                            .attr("opacity", 0.85);
+                    } else {
+                        bandNodes.each(function(d) {
+                            const profMap = bandProfanity.get(d.label);
+                            if (!profMap) return;
+                            const r = bandSizeScale(d.total);
+                            const pieArc = arc.innerRadius(0).outerRadius(r);
+                            const pieData = [];
+                            profMap.forEach((count, prof) => {
+                                if (enabledProfanities.has(prof)) pieData.push({ prof, value: count });
+                            });
+                            if (pieData.length === 0) return;
+                            const arcs = pie(pieData);
+                            d3.select(this).selectAll("path")
+                                .data(arcs).join("path")
+                                .attr("d", pieArc)
+                                .attr("fill", a => profanityColors[a.data.prof] || "#999")
+                                .attr("stroke", "#1a1a2e")
+                                .attr("stroke-width", 0.5)
+                                .attr("opacity", 0.9);
+                        });
+                    }
+
+                    node.filter(d => d.type === "profanity")
+                        .append("text")
+                        .text(d => censor(d.label))
+                        .attr("text-anchor", "middle")
+                        .attr("dy", "0.35em")
+                        .style("font-size", d => Math.min(profSizeScale(d.total) * 0.45, 14) + "px")
+                        .style("font-weight", "bold")
+                        .style("fill", "#fff");
+
+                    node.filter(d => d.type === "band")
+                        .append("text")
+                        .text(d => d.label)
+                        .attr("dx", d => bandSizeScale(d.total) + 4)
+                        .attr("dy", 4)
+                        .style("font-size", "10px")
+                        .style("fill", "#eee");
+
+                    node.on("mouseover", (event, d) => {
+                        const displayLabel = d.type === "profanity" ? censor(d.label) : d.label;
+                        const valLabel = relativeMode
+                            ? `Avg rate: ${d.total.toFixed(1)}‰`
+                            : `Total count: ${Math.round(d.total)}`;
+                        tooltip.style("display", "block")
+                            .html(`<strong>${displayLabel}</strong><br>Type: ${d.type}<br>${valLabel}`);
+                    })
+                    .on("mousemove", (event) => {
+                        tooltip.style("left", (event.pageX + 12) + "px")
+                            .style("top", (event.pageY - 10) + "px");
+                    })
+                    .on("mouseout", () => tooltip.style("display", "none"))
+                    .on("click", (event, d) => {
+                        event.stopPropagation();
+                        openDrilldown(d, filteredRows);
+                    });
+
+                    simulation = d3.forceSimulation(nodes)
+                        .force("link", d3.forceLink(edges).id(d => d.id).distance(150).strength(0.2))
+                        .force("charge", d3.forceManyBody().strength(d => d.type === "profanity" ? -400 : -100))
+                        .force("center", d3.forceCenter(width / 2, height / 2))
+                        .force("radial_prof", d3.forceRadial(0, width / 2, height / 2)
+                            .strength(d => d.type === "profanity" ? 0.8 : 0))
+                        .force("radial_band", d3.forceRadial(Math.min(width, height) * 0.35, width / 2, height / 2)
+                            .strength(d => d.type === "band" ? 0.3 : 0))
+                        .force("collision", d3.forceCollide().radius(d =>
+                            (d.type === "band" ? bandSizeScale(d.total) : profSizeScale(d.total)) + 8
+                        ))
+                        .on("tick", () => {
+                            link
+                                .attr("x1", d => d.source.x)
+                                .attr("y1", d => d.source.y)
+                                .attr("x2", d => d.target.x)
+                                .attr("y2", d => d.target.y);
+                            node.attr("transform", d => `translate(${d.x},${d.y})`);
+                        });
+
+                    function dragstarted(event, d) {
+                        if (!event.active) simulation.alphaTarget(0.3).restart();
+                        d.fx = d.x; d.fy = d.y;
+                    }
+                    function dragged(event, d) { d.fx = event.x; d.fy = event.y; }
+                    function dragended(event, d) {
+                        if (!event.active) simulation.alphaTarget(0);
+                        d.fx = null; d.fy = null;
+                    }
+                }
+
+                // Drilldown
+                function openDrilldown(d, rows) {
+                    const drilldown = document.getElementById("drilldown");
+                    const title = document.getElementById("drilldown-title");
+                    const dsvg = d3.select("#drilldown-svg");
+                    dsvg.selectAll("*").remove();
+
+                    const size = Math.min(window.innerWidth, window.innerHeight) * 0.92;
+                    dsvg.attr("width", window.innerWidth).attr("height", window.innerHeight);
+                    const offsetX = (window.innerWidth - size) / 2;
+                    const offsetY = (window.innerHeight - size) / 2;
+                    const dg = dsvg.append("g");
+
+                    const drillZoom = d3.zoom()
+                        .scaleExtent([0.5, 30])
+                        .on("zoom", (event) => {
+                            dg.attr("transform", event.transform);
+                            const k = event.transform.k;
+                            dg.selectAll(".label-word").style("opacity", 1);
+                            dg.selectAll(".label-album").style("opacity", k < 2 ? 1 : 0);
+                            dg.selectAll(".label-song").style("opacity", k >= 2 ? 1 : 0);
+                            dg.selectAll(".label-song-count").style("opacity", k >= 2 ? 1 : 0);
+                            dg.selectAll("text").each(function() {
+                                const el = d3.select(this);
+                                const baseSize = +el.attr("data-base-size") || 12;
+                                el.style("font-size", Math.min(baseSize, baseSize / Math.sqrt(k)) + "px");
+                            });
+                        });
+                    dsvg.call(drillZoom);
+                    dsvg.call(drillZoom.transform, d3.zoomIdentity.translate(offsetX, offsetY));
+
+                    if (d.type === "band") {
+                        title.textContent = d.label;
+                        const bandRows = rows.filter(r => r.band === d.label);
+                        const wordMap = new Map();
+                        bandRows.forEach(r => {
+                            if (!wordMap.has(r.word)) wordMap.set(r.word, { prof: r.aggregated_word, albums: new Map() });
+                            const wEntry = wordMap.get(r.word);
+                            if (!wEntry.albums.has(r.album)) wEntry.albums.set(r.album, new Map());
+                            const albumMap = wEntry.albums.get(r.album);
+                            albumMap.set(r.song, (albumMap.get(r.song) || 0) + (+r.count));
+                        });
+                        const children = [];
+                        wordMap.forEach((wEntry, word) => {
+                            const albumChildren = [];
+                            wEntry.albums.forEach((songMap, album) => {
+                                const songChildren = [];
+                                songMap.forEach((count, song) => {
+                                    let val = count;
+                                    if (relativeMode) {
+                                        const key = `${d.label}\t${album}\t${song}`;
+                                        const wc = songWordCount.get(key) || 0;
+                                        if (wc < MIN_WORD_COUNT) return;
+                                        val = Math.round(count / wc * 1000 * 10) / 10;
+                                    }
+                                    songChildren.push({ name: song, value: val });
+                                });
+                                albumChildren.push({ name: album, children: songChildren });
+                            });
+                            children.push({ name: word, prof: wEntry.prof, children: albumChildren });
+                        });
+                        children.sort((a, b) => {
+                            const sumA = a.children.reduce((s, al) => s + al.children.reduce((s2, sg) => s2 + sg.value, 0), 0);
+                            const sumB = b.children.reduce((s, al) => s + al.children.reduce((s2, sg) => s2 + sg.value, 0), 0);
+                            return sumB - sumA;
+                        });
+                        renderHierarchicalPack(dg, { name: d.label, children: children.slice(0, 40) }, size);
+                    } else {
+                        title.textContent = censor(d.label);
+                        const profRows = filteredRows.filter(r => r.aggregated_word === d.label);
+                        // Compute total count per word, then convert to percentage
+                        const wordCounts = new Map();
+                        profRows.forEach(r => {
+                            wordCounts.set(r.word, (wordCounts.get(r.word) || 0) + (+r.count));
+                        });
+                        let groupTotal = 0;
+                        wordCounts.forEach(c => groupTotal += c);
+                        const merged = new Map();
+                        wordCounts.forEach((count, word) => {
+                            merged.set(word, { count: groupTotal > 0 ? Math.round(count / groupTotal * 1000) / 10 : 0, prof: d.label });
+                        });
+                        renderCirclePack(dg, merged, size);
+                    }
+
+                    drilldown.classList.add("active");
+                }
+
+                function renderHierarchicalPack(container, data, size) {
+                    const hierarchy = d3.hierarchy(data).sum(d => d.value || 0).sort((a, b) => b.value - a.value);
+                    const pack = d3.pack().size([size, size]).padding(d => d.depth === 0 ? 14 : d.depth === 1 ? 8 : 4);
+                    const root = pack(hierarchy);
+                    const allNodes = root.descendants().slice(1);
+                    const nodeG = container.selectAll("g").data(allNodes).join("g")
+                        .attr("transform", d => `translate(${d.x},${d.y})`);
+                    nodeG.append("circle")
+                        .attr("r", d => d.r)
+                        .attr("fill", d => {
+                            if (d.depth === 1) return profanityColors[d.data.prof] || "#4ecdc4";
+                            if (d.depth === 2) return d3.color(profanityColors[d.parent.data.prof] || "#4ecdc4").brighter(0.5).toString();
+                            const baseColor = profanityColors[d.parent.parent.data.prof] || "#4ecdc4";
+                            return d3.color(baseColor).brighter(1.0).toString();
+                        })
+                        .attr("opacity", d => d.depth === 1 ? 0.4 : d.depth === 2 ? 0.35 : 0.8)
+                        .attr("stroke", d => {
+                            if (d.depth === 1) return d3.color(profanityColors[d.data.prof] || "#4ecdc4").darker(0.5);
+                            if (d.depth === 2) return "rgba(255,255,255,0.3)";
+                            return "rgba(255,255,255,0.15)";
+                        })
+                        .attr("stroke-width", d => d.depth === 1 ? 2 : 1);
+                    nodeG.filter(d => d.depth === 1 && d.r > 15).append("text")
+                        .attr("class", "label-word")
+                        .attr("text-anchor", "middle").attr("dy", d => -d.r + 16)
+                        .attr("data-base-size", d => Math.min(d.r * 0.3, 14))
+                        .style("font-size", d => Math.min(d.r * 0.3, 14) + "px")
+                        .style("fill", "#fff").style("font-weight", "bold").text(d => censor(d.data.name));
+                    nodeG.filter(d => d.depth === 2 && d.r > 10).append("text")
+                        .attr("class", "label-album")
+                        .attr("text-anchor", "middle").attr("dy", d => -d.r + 12)
+                        .attr("data-base-size", d => Math.min(d.r * 0.3, 11))
+                        .style("font-size", d => Math.min(d.r * 0.3, 11) + "px")
+                        .style("fill", "#ddd").style("font-style", "italic")
+                        .text(d => d.data.name);
+                    nodeG.filter(d => d.depth === 3).append("text")
+                        .attr("class", "label-song")
+                        .attr("text-anchor", "middle").attr("dy", "-0.2em")
+                        .attr("data-base-size", d => Math.min(d.r * 0.6, 12))
+                        .style("font-size", d => Math.min(d.r * 0.6, 12) + "px")
+                        .style("fill", "#fff").style("opacity", 0)
+                        .text(d => d.data.name);
+                    nodeG.filter(d => d.depth === 3).append("text")
+                        .attr("class", "label-song-count")
+                        .attr("text-anchor", "middle").attr("dy", "1.1em")
+                        .attr("data-base-size", d => Math.min(d.r * 0.45, 10))
+                        .style("font-size", d => Math.min(d.r * 0.45, 10) + "px")
+                        .style("fill", "#ccc").style("opacity", 0)
+                        .text(d => relativeMode ? d.value.toFixed(1) + "\u2030" : d.value);
+                    nodeG.append("title").text(d => {
+                        const val = relativeMode ? d.value.toFixed(1) + "\u2030" : d.value;
+                        if (d.depth === 1) return `Word: ${censor(d.data.name)} (total: ${val})`;
+                        if (d.depth === 2) return `Album: ${d.data.name} (total: ${val})`;
+                        return `Song: ${d.data.name} (${relativeMode ? "rate" : "count"}: ${val})`;
+                    });
+                }
+
+                function renderCirclePack(container, mergedMap, size) {
+                    const children = [];
+                    mergedMap.forEach((val, word) => {
+                        children.push({ name: word, value: val.count, prof: val.prof });
+                    });
+                    children.sort((a, b) => b.value - a.value);
+                    const topChildren = children.slice(0, 80);
+
+                    const hierarchy = d3.hierarchy({ children: topChildren }).sum(d => d.value);
+                    const pack = d3.pack().size([size, size]).padding(4);
+                    const root = pack(hierarchy);
+
+                    const nodes = container.selectAll("g")
+                        .data(root.leaves()).join("g")
+                        .attr("transform", d => `translate(${d.x},${d.y})`);
+
+                    nodes.append("circle")
+                        .attr("r", d => d.r)
+                        .attr("fill", d => profanityColors[d.data.prof] || "#4ecdc4")
+                        .attr("opacity", 0.85)
+                        .attr("stroke", d => d3.color(profanityColors[d.data.prof] || "#4ecdc4").darker(0.6))
+                        .attr("stroke-width", 1);
+
+                    nodes.filter(d => d.r > 14).append("text")
+                        .attr("text-anchor", "middle").attr("dy", "-0.2em")
+                        .style("font-size", d => Math.min(d.r * 0.55, 14) + "px")
+                        .style("fill", "#fff").style("font-weight", "bold")
+                        .text(d => censor(d.data.name));
+
+                    nodes.filter(d => d.r > 14).append("text")
+                        .attr("text-anchor", "middle").attr("dy", "1.1em")
+                        .style("font-size", d => Math.min(d.r * 0.4, 11) + "px")
+                        .style("fill", "#ddd")
+                        .text(d => d.data.value.toFixed(1) + "%");
+
+                    nodes.append("title").text(d => `${censor(d.data.name)}: ${d.data.value.toFixed(1)}%`);
+                }
+
+                // Close drilldown
+                document.getElementById("drilldown-close").addEventListener("click", () => {
+                    document.getElementById("drilldown").classList.remove("active");
+                });
+                document.getElementById("drilldown").addEventListener("click", (e) => {
+                    if (e.target === e.currentTarget) e.currentTarget.classList.remove("active");
+                });
+
+                // Initial render
+                render(+document.getElementById("threshold").value);
+
+                // Slider
+                const slider = document.getElementById("threshold");
+                let valueLabel = document.getElementById("threshold-value");
+                slider.addEventListener("input", () => {
+                    const val = +slider.value;
+                    valueLabel.textContent = val;
+                    render(val);
+                });
+
+                // Pie toggle
+                const pieToggle = document.getElementById("pie-toggle");
+                const pieLabel = document.getElementById("pie-label");
+                pieToggle.addEventListener("change", () => {
+                    showPie = pieToggle.checked;
+                    pieLabel.textContent = showPie ? "Pie chart" : "Solid";
+                    render(+slider.value);
+                });
+
+                // Language toggle
+                const langToggle = document.getElementById("lang-toggle");
+                const langLabel = document.getElementById("lang-label");
+                langToggle.addEventListener("change", () => {
+                    punkMode = langToggle.checked;
+                    langLabel.textContent = punkMode ? "Punk" : "Academic";
+                    // Re-render filter list labels
+                    document.querySelectorAll("#filter-list .filter-item").forEach(item => {
+                        const prof = item.dataset.prof;
+                        item.querySelector(".filter-label").textContent = censor(prof);
+                    });
+                    render(+slider.value);
+                });
+
+                // Relative/Absolute toggle
+                const relativeToggle = document.getElementById("relative-toggle");
+                const relativeLabel = document.getElementById("relative-label");
+                const thresholdLabel = document.getElementById("threshold-label");
+                relativeToggle.addEventListener("change", () => {
+                    relativeMode = relativeToggle.checked;
+                    relativeLabel.textContent = relativeMode ? "Relative" : "Absolute";
+                    if (relativeMode) {
+                        slider.min = 1; slider.max = 200; slider.value = 90;
+                        thresholdLabel.innerHTML = 'Min avg. profanities per 1000 words: <span id="threshold-value">90</span>';
+                    } else {
+                        slider.min = 1; slider.max = 1000; slider.value = 396;
+                        thresholdLabel.innerHTML = 'Minimum total profanity count per band: <span id="threshold-value">396</span>';
+                    }
+                    valueLabel = document.getElementById("threshold-value");
+                    recompute();
+                    render(+slider.value);
+                });
+            });
+        }
+
+        // ===== CHORD DIAGRAM (lazy init) =====
+        let chordInitialized = false;
+
+        function initChord() {
+            chordInitialized = true;
+
+            // Top 50 topics in order from txt
+            const topTopics = [
+                "alienation","rebellion","identity","nihilism","punk_scene","love","city_life",
+                "heartbreak","outsider","alcohol","politics","boredom","authority","street_life",
+                "sex","anti_government","death","loneliness","freedom","violence","oppression",
+                "breakup","depression","youth","drugs","anger","anti_capitalism","nostalgia",
+                "meaning_of_life","friendship","partying","media","religion","lust","class_struggle",
+                "crime","money","work","concerts","anti_police","future","apocalypse","anxiety",
+                "poverty","DIY","anti_war","unemployment","sexuality","suicide","war"
+            ];
+
+            const width = window.innerWidth;
+            const height = window.innerHeight;
+            const outerRadius = Math.min(width, height) * 0.42;
+            const innerRadius = outerRadius - 20;
+
+            const svg = d3.select("#chord-svg")
+                .attr("width", width)
+                .attr("height", height);
+
+            const gMain = svg.append("g");
+
+            // Zoom
+            const chordZoom = d3.zoom()
+                .scaleExtent([0.3, 5])
+                .on("zoom", (event) => gMain.attr("transform", event.transform));
+            svg.call(chordZoom);
+            svg.call(chordZoom.transform, d3.zoomIdentity.translate(width / 2, height / 2));
+
+            const tooltip = d3.select("#tooltip");
+
+            Promise.all([
+                d3.text("songs_topics.csv"),
+                d3.text("songs.csv")
+            ]).then(([topicsText, songsText]) => {
+                const rows = d3.dsvFormat(";").parse(topicsText);
+                const songsRows = d3.dsvFormat(";").parse(songsText);
+
+                // Build year lookup: band+album+song -> year
+                const yearMap = new Map();
+                songsRows.forEach(r => {
+                    const key = `${r.band}\t${r.album}\t${r.song}`;
+                    yearMap.set(key, +r.year);
+                });
+
+                // Build band -> country map (majority country)
+                const chordBandCountryMap = new Map();
+                const chordBandCountryCounts = d3.rollup(songsRows, v => v.length, d => d.band, d => d.country);
+                chordBandCountryCounts.forEach((countryMap, band) => {
+                    let maxCount = 0, maxCountry = "unknown";
+                    countryMap.forEach((count, country) => {
+                        if (count > maxCount) { maxCount = count; maxCountry = country; }
+                    });
+                    chordBandCountryMap.set(band, maxCountry);
+                });
+
+                // Build country picker
+                const chordCountries = [...new Set([...chordBandCountryMap.values()])].sort();
+                let chordSelectedCountry = "GB";
+                const chordCountryList = document.getElementById("chord-country-list");
+                const chordAllLabel = document.createElement("label");
+                chordAllLabel.style.cssText = "display:block;margin:3px 0;cursor:pointer;font-size:13px;padding:2px 4px;border-radius:4px;";
+                chordAllLabel.innerHTML = `<input type="radio" name="chord-country" value="ALL" style="margin-right:6px;"> ALL`;
+                chordCountryList.appendChild(chordAllLabel);
+                chordCountries.forEach(c => {
+                    const lbl = document.createElement("label");
+                    lbl.style.cssText = "display:block;margin:3px 0;cursor:pointer;font-size:13px;padding:2px 4px;border-radius:4px;";
+                    const checked = c === "GB" ? " checked" : "";
+                    lbl.innerHTML = `<input type="radio" name="chord-country" value="${c}"${checked} style="margin-right:6px;"> ${c}`;
+                    chordCountryList.appendChild(lbl);
+                });
+                chordCountryList.addEventListener("change", (e) => {
+                    if (e.target.name === "chord-country") {
+                        chordSelectedCountry = e.target.value;
+                        render(+slider.value);
+                    }
+                });
+
+                // Attach year to topic rows
+                rows.forEach(r => {
+                    const key = `${r.band}\t${r.album}\t${r.song}`;
+                    r._year = yearMap.get(key) || null;
+                });
+
+                // Only primary
+                const primaryRows = rows.filter(r => r.type === "primary");
+
+                // Determine year extent
+                const years = primaryRows.map(r => r._year).filter(y => y);
+                const minYear = d3.min(years) || 1970;
+                const maxYear = d3.max(years) || 2025;
+
+                const yearMinSlider = document.getElementById("year-min-slider");
+                const yearMaxSlider = document.getElementById("year-max-slider");
+                const yearRangeLabel = document.getElementById("year-range-label");
+                yearMinSlider.min = minYear; yearMinSlider.max = maxYear; yearMinSlider.value = Math.max(minYear, 1980);
+                yearMaxSlider.min = minYear; yearMaxSlider.max = maxYear; yearMaxSlider.value = Math.min(maxYear, 1989);
+                yearRangeLabel.textContent = `${yearMinSlider.value} – ${yearMaxSlider.value}`;
+
+                const trackFill = document.getElementById("year-track-fill");
+                function updateTrackFill() {
+                    const min = +yearMinSlider.min, max = +yearMinSlider.max;
+                    const pctLeft = ((+yearMinSlider.value - min) / (max - min)) * 100;
+                    const pctRight = ((+yearMaxSlider.value - min) / (max - min)) * 100;
+                    trackFill.style.left = pctLeft + "%";
+                    trackFill.style.width = (pctRight - pctLeft) + "%";
+                }
+                updateTrackFill();
+
+                const slider = document.getElementById("topic-count-slider");
+                const valueLabel = document.getElementById("topic-count-value");
+
+                function render(topN) {
+                    const yMin = +yearMinSlider.value;
+                    const yMax = +yearMaxSlider.value;
+                    yearRangeLabel.textContent = `${yMin} – ${yMax}`;
+
+                    gMain.selectAll("*").remove();
+
+                    const activeTopics = topTopics.slice(0, topN);
+
+                    // Filter rows to only active topics AND year range AND country
+                    const filtered = primaryRows.filter(r => {
+                        if (!activeTopics.includes(r.topic)) return false;
+                        if (r._year !== null && (r._year < yMin || r._year > yMax)) return false;
+                        if (chordSelectedCountry !== "ALL" && chordBandCountryMap.get(r.band) !== chordSelectedCountry) return false;
+                        return true;
+                    });
+
+                    // Populate leaderboard
+                    const topicCounts = new Map();
+                    filtered.forEach(r => {
+                        topicCounts.set(r.topic, (topicCounts.get(r.topic) || 0) + 1);
+                    });
+                    const sorted = activeTopics
+                        .map(t => ({ name: t, count: topicCounts.get(t) || 0 }))
+                        .sort((a, b) => b.count - a.count);
+                    const lbList = document.getElementById("lb-list");
+                    lbList.innerHTML = sorted.map((t, i) =>
+                        `<div class="lb-item"><span class="lb-rank">${i + 1}.</span><span class="lb-name">${t.name}</span><span class="lb-count">${t.count}</span></div>`
+                    ).join("");
+
+                    // Get bands that have at least one connection
+                    const activeBands = [...new Set(filtered.map(r => r.band))].sort();
+
+                    // Build matrix: rows/cols = [topics..., bands...]
+                    const names = [...activeTopics, ...activeBands];
+                    const n = names.length;
+                    const indexMap = new Map(names.map((name, i) => [name, i]));
+                    const matrix = Array.from({length: n}, () => new Array(n).fill(0));
+
+                    // Count connections: band -> topic
+                    filtered.forEach(r => {
+                        const ti = indexMap.get(r.topic);
+                        const bi = indexMap.get(r.band);
+                        if (ti !== undefined && bi !== undefined) {
+                            matrix[bi][ti] += 1;
+                            matrix[ti][bi] += 1;
+                        }
+                    });
+
+                    // Create chord layout
+                    const chord = d3.chord()
+                        .padAngle(0.01)
+                        .sortSubgroups(d3.descending)
+                        .sortChords(d3.descending);
+
+                    const chords = chord(matrix);
+
+                    // Color scale for topics
+                    const topicColor = d3.scaleOrdinal()
+                        .domain(activeTopics)
+                        .range(d3.quantize(d3.interpolateRainbow, activeTopics.length + 1));
+
+                    // Band color - neutral gray
+                    function getColor(i) {
+                        if (i < activeTopics.length) return topicColor(names[i]);
+                        return "#666";
+                    }
+
+                    const arc = d3.arc().innerRadius(innerRadius).outerRadius(outerRadius);
+                    const ribbon = d3.ribbon().radius(innerRadius);
+
+                    // Custom layout: topics on top (arc from -pi/3 to pi/3), bands on the rest
+                    // We'll use the default chord layout but post-process arcs
+                    // Actually, for d3.chord the angular positions are auto-calculated.
+                    // To get topics on top, we'd need custom ordering. Let's sort: topics first.
+                    // The chord layout already uses our order (topics first = indices 0..topN-1)
+                    // so topics will appear first in the arc. Let's just render it.
+
+                    // Draw arcs
+                    const group = gMain.append("g")
+                        .selectAll("g")
+                        .data(chords.groups)
+                        .join("g");
+
+                    group.append("path")
+                        .attr("d", arc)
+                        .attr("fill", d => getColor(d.index))
+                        .attr("stroke", d => d3.color(getColor(d.index)).darker(0.3))
+                        .attr("stroke-width", 0.5)
+                        .on("mouseover", function(event, d) {
+                            tooltip.style("display", "block")
+                                .html(`<strong>${names[d.index]}</strong><br>Total links: ${d.value}`);
+                            // Highlight connected ribbons
+                            gMain.selectAll(".ribbon")
+                                .style("opacity", r => (r.source.index === d.index || r.target.index === d.index) ? 0.85 : 0.05);
+                        })
+                        .on("mousemove", function(event) {
+                            tooltip.style("left", (event.pageX + 12) + "px")
+                                .style("top", (event.pageY - 20) + "px");
+                        })
+                        .on("mouseout", function() {
+                            tooltip.style("display", "none");
+                            gMain.selectAll(".ribbon").style("opacity", 0.55);
+                        });
+
+                    // Labels
+                    group.append("text")
+                        .each(d => { d.angle = (d.startAngle + d.endAngle) / 2; })
+                        .attr("dy", "0.35em")
+                        .attr("class", "arc-label")
+                        .attr("transform", d => {
+                            const angle = d.angle * 180 / Math.PI - 90;
+                            const flip = d.angle > Math.PI;
+                            return `rotate(${angle}) translate(${outerRadius + 8}) ${flip ? "rotate(180)" : ""}`;
+                        })
+                        .attr("text-anchor", d => d.angle > Math.PI ? "end" : "start")
+                        .style("font-size", d => d.index < activeTopics.length ? "11px" : "9px")
+                        .style("fill", d => d.index < activeTopics.length ? "#fff" : "#aaa")
+                        .style("font-weight", d => d.index < activeTopics.length ? "bold" : "normal")
+                        .text(d => names[d.index]);
+
+                    // Draw ribbons (only between topics and bands, skip topic-topic)
+                    gMain.append("g")
+                        .selectAll("path")
+                        .data(chords.filter(d => {
+                            // One end is topic (< activeTopics.length), other is band
+                            const src = d.source.index;
+                            const tgt = d.target.index;
+                            return (src < activeTopics.length) !== (tgt < activeTopics.length);
+                        }))
+                        .join("path")
+                        .attr("class", "ribbon")
+                        .attr("d", ribbon)
+                        .attr("fill", d => {
+                            // Color by topic
+                            const topicIdx = d.source.index < activeTopics.length ? d.source.index : d.target.index;
+                            return getColor(topicIdx);
+                        })
+                        .on("mouseover", function(event, d) {
+                            d3.select(this).style("fill-opacity", 0.9);
+                            const src = names[d.source.index];
+                            const tgt = names[d.target.index];
+                            tooltip.style("display", "block")
+                                .html(`<strong>${src}</strong> &harr; <strong>${tgt}</strong><br>Songs: ${d.source.value}`);
+                        })
+                        .on("mousemove", function(event) {
+                            tooltip.style("left", (event.pageX + 12) + "px")
+                                .style("top", (event.pageY - 20) + "px");
+                        })
+                        .on("mouseout", function() {
+                            d3.select(this).style("fill-opacity", 0.55);
+                            tooltip.style("display", "none");
+                        });
+                }
+
+                render(+slider.value);
+
+                slider.addEventListener("input", () => {
+                    valueLabel.textContent = slider.value;
+                    render(+slider.value);
+                });
+
+                yearMinSlider.addEventListener("input", () => {
+                    if (+yearMinSlider.value > +yearMaxSlider.value) yearMinSlider.value = yearMaxSlider.value;
+                    updateTrackFill();
+                    render(+slider.value);
+                });
+                yearMaxSlider.addEventListener("input", () => {
+                    if (+yearMaxSlider.value < +yearMinSlider.value) yearMaxSlider.value = yearMinSlider.value;
+                    updateTrackFill();
+                    render(+slider.value);
+                });
+            });
+        }
+
+        // ===== EMOTIONS RADAR (lazy init) =====
+        let radarInitialized = false;
+
+        function initRadar() {
+            radarInitialized = true;
+
+            const RADAR_EMOTIONS = [
+                "frustration", "aggression", "anger", "irony", "nostalgia",
+                "hopelessness", "confidence", "joy", "sadness", "fear"
+            ];
+            const radarEmotionSet = new Set(RADAR_EMOTIONS);
+            const RADAR_COLORS = d3.schemeTableau10;
+
+            let radarMode = "artist";
+            let radarAnimTimer = null;
+            let radarYearData = [];
+            let radarAnimIdx = 0;
+
+            const radarTooltip = d3.select("#tooltip");
+
+            Promise.all([
+                d3.text("songs_emotions.csv"),
+                d3.text("songs.csv")
+            ]).then(([emotRaw, songsRaw]) => {
+                const sep = d3.dsvFormat(";");
+                const emotionsData = sep.parse(emotRaw).filter(r => radarEmotionSet.has(r.emotion));
+                const songsRows = sep.parse(songsRaw);
+
+                const bandCountry = new Map();
+                songsRows.forEach(r => { if (!bandCountry.has(r.band)) bandCountry.set(r.band, r.country); });
+
+                const bandAlbums = new Map();
+                const albumSongCount = new Map();
+                songsRows.forEach(r => {
+                    if (!bandAlbums.has(r.band)) bandAlbums.set(r.band, new Map());
+                    bandAlbums.get(r.band).set(r.album, +r.year);
+                    const key = r.band + "\t" + r.album;
+                    if (!albumSongCount.has(key)) albumSongCount.set(key, new Set());
+                    albumSongCount.get(key).add(r.song);
+                });
+                albumSongCount.forEach((v, k) => albumSongCount.set(k, v.size));
+
+                // Populate artist select
+                const artistSel = document.getElementById("r-select-artist");
+                const bands = [...new Set(emotionsData.map(r => r.band))].sort();
+                bands.forEach(b => {
+                    const opt = document.createElement("option");
+                    opt.value = b; opt.textContent = b;
+                    artistSel.appendChild(opt);
+                });
+                artistSel.value = "Joy Division";
+
+                // Populate country select (min 5 bands)
+                const countrySel = document.getElementById("r-select-country");
+                const countryBands = new Map();
+                bandCountry.forEach((c, b) => {
+                    if (!c) return;
+                    if (!countryBands.has(c)) countryBands.set(c, new Set());
+                    countryBands.get(c).add(b);
+                });
+                [...countryBands.entries()]
+                    .filter(([, s]) => s.size >= 5)
+                    .map(([c]) => c).sort()
+                    .forEach(c => {
+                        const opt = document.createElement("option");
+                        opt.value = c; opt.textContent = c;
+                        countrySel.appendChild(opt);
+                    });
+
+                // Compute global baseline (emotion count / total songs)
+                const totalSongs = new Set(songsRows.map(r => r.band + "\t" + r.album + "\t" + r.song)).size || 1;
+                const baselineValues = RADAR_EMOTIONS.map(em => {
+                    const count = emotionsData.filter(r => r.emotion === em).length;
+                    return Math.round((count / totalSongs) * 100) / 100;
+                });
+
+                const baselineToggle = document.getElementById("radar-baseline-toggle");
+
+                // Radar draw core
+                function drawRadar(datasets, labels, colorFn, useGradientLegend) {
+                    const container = document.getElementById("slide-6");
+                    const size = Math.min(container.clientWidth - 300, container.clientHeight - 80);
+                    const svg = d3.select("#radar-svg").attr("width", size).attr("height", size);
+                    svg.selectAll("*").remove();
+
+                    const cx = size / 2, cy = size / 2;
+                    const maxR = size * 0.36;
+                    const angleSlice = (2 * Math.PI) / RADAR_EMOTIONS.length;
+
+                    let globalMax = 0;
+                    datasets.forEach(ds => ds.values.forEach(v => { if (v > globalMax) globalMax = v; }));
+                    if (globalMax === 0) globalMax = 1;
+                    const rScale = d3.scaleLinear().domain([0, globalMax]).range([0, maxR]);
+
+                    // Grid
+                    const levels = 5;
+                    const gridG = svg.append("g");
+                    for (let i = 1; i <= levels; i++) {
+                        const r = (maxR / levels) * i;
+                        gridG.append("circle").attr("cx", cx).attr("cy", cy).attr("r", r)
+                            .attr("fill", "none").attr("stroke", "#333").attr("stroke-width", 0.8);
+                        gridG.append("text").attr("x", cx + 4).attr("y", cy - r + 4)
+                            .attr("font-size", "10px").attr("fill", "#555")
+                            .text(Math.round(globalMax / levels * i));
+                    }
+
+                    // Axes + labels
+                    const axisG = svg.append("g");
+                    RADAR_EMOTIONS.forEach((em, i) => {
+                        const angle = angleSlice * i - Math.PI / 2;
+                        const x2 = cx + maxR * Math.cos(angle);
+                        const y2 = cy + maxR * Math.sin(angle);
+                        axisG.append("line").attr("x1", cx).attr("y1", cy).attr("x2", x2).attr("y2", y2)
+                            .attr("stroke", "#444").attr("stroke-width", 1);
+                        const lR = maxR + 22;
+                        axisG.append("text")
+                            .attr("x", cx + lR * Math.cos(angle))
+                            .attr("y", cy + lR * Math.sin(angle))
+                            .attr("text-anchor", "middle").attr("dominant-baseline", "middle")
+                            .attr("font-size", "11px").attr("fill", "#aaa").text(em);
+                    });
+
+                    // Polygons
+                    const dataG = svg.append("g");
+                    const polygons = [];
+
+                    datasets.forEach((ds, di) => {
+                        const pathStr = d3.lineRadial()
+                            .angle((d, i) => angleSlice * i)
+                            .radius((d, i) => rScale(ds.values[i]))
+                            .curve(d3.curveLinearClosed)(ds.values);
+
+                        const color = colorFn(di);
+                        const polygon = dataG.append("path").datum(ds)
+                            .attr("d", pathStr)
+                            .attr("transform", `translate(${cx},${cy})`)
+                            .attr("fill", color).attr("fill-opacity", 0.15)
+                            .attr("stroke", color).attr("stroke-width", 2).attr("stroke-opacity", 0.85)
+                            .style("transition", "opacity 0.3s")
+                            .style("pointer-events", "none");
+                        polygons.push(polygon);
+                    });
+
+                    // Dots (separate layer on top)
+                    const dotG = svg.append("g");
+                    datasets.forEach((ds, di) => {
+                        const color = colorFn(di);
+                        RADAR_EMOTIONS.forEach((em, i) => {
+                            const angle = angleSlice * i - Math.PI / 2;
+                            const r = rScale(ds.values[i]);
+                            const px = cx + r * Math.cos(angle);
+                            const py = cy + r * Math.sin(angle);
+                            dotG.append("circle").datum({ ds, idx: di })
+                                .attr("cx", px).attr("cy", py).attr("r", 4)
+                                .attr("fill", color).attr("stroke", "#fff").attr("stroke-width", 1.5)
+                                .attr("class", "rdot-" + di)
+                                .style("transition", "opacity 0.3s")
+                                .on("mouseover", function(event, d) {
+                                    polygons.forEach((p, j) => {
+                                        p.attr("fill-opacity", j === di ? 0.25 : 0.03)
+                                         .attr("stroke-opacity", j === di ? 1 : 0.15);
+                                    });
+                                    svg.selectAll("[class^='rdot-']").each(function() {
+                                        const idx = +d3.select(this).attr("class").split("-")[1];
+                                        d3.select(this).style("opacity", idx === di ? 1 : 0.2);
+                                    });
+                                    let html = `<strong>${d.ds.label}</strong><table class="tt-table">`;
+                                    const total = d.ds.values.reduce((a, b) => a + b, 0) || 1;
+                                    const half = Math.ceil(RADAR_EMOTIONS.length / 2);
+                                    for (let row = 0; row < half; row++) {
+                                        html += `<tr>`;
+                                        const ei1 = row;
+                                        const pct1 = Math.round((d.ds.values[ei1] / total) * 100);
+                                        html += `<td class="tt-emotion">${RADAR_EMOTIONS[ei1]}</td><td class="tt-val">${pct1}%</td>`;
+                                        const ei2 = row + half;
+                                        if (ei2 < RADAR_EMOTIONS.length) {
+                                            const pct2 = Math.round((d.ds.values[ei2] / total) * 100);
+                                            html += `<td class="tt-emotion">${RADAR_EMOTIONS[ei2]}</td><td class="tt-val">${pct2}%</td>`;
+                                        }
+                                        html += `</tr>`;
+                                    }
+                                    html += `</table>`;
+                                    radarTooltip.style("display", "block").html(html);
+                                })
+                                .on("mousemove", (event) => {
+                                    radarTooltip.style("left", (event.pageX + 14) + "px")
+                                               .style("top", (event.pageY - 10) + "px");
+                                })
+                                .on("mouseout", () => {
+                                    polygons.forEach(p => p.attr("fill-opacity", 0.15).attr("stroke-opacity", 0.85));
+                                    svg.selectAll("[class^='rdot-']").style("opacity", 1);
+                                    radarTooltip.style("display", "none");
+                                });
+                        });
+                    });
+
+                    // Baseline polygon (on top of everything)
+                    if (baselineToggle.checked) {
+                        const basePathStr = d3.lineRadial()
+                            .angle((d, i) => angleSlice * i)
+                            .radius((d, i) => rScale(baselineValues[i]))
+                            .curve(d3.curveLinearClosed)(baselineValues);
+                        svg.append("path")
+                            .attr("d", basePathStr)
+                            .attr("transform", `translate(${cx},${cy})`)
+                            .attr("fill", "rgba(255,50,100,0.05)")
+                            .attr("stroke", "#ff3264")
+                            .attr("stroke-width", 2.5)
+                            .attr("stroke-dasharray", "6,3")
+                            .attr("stroke-opacity", 0.9)
+                            .style("pointer-events", "none");
+                    }
+
+                    // Legend
+                    const legendList = document.getElementById("radar-legend-list");
+                    const gradientBar = document.getElementById("radar-gradient-bar");
+                    legendList.innerHTML = "";
+
+                    if (useGradientLegend && labels.length > 1) {
+                        legendList.style.display = "none";
+                        gradientBar.style.display = "flex";
+                        const track = document.getElementById("r-gradient-track");
+                        const gColorScale = d3.scaleSequential(d3.interpolateViridis).domain([0, labels.length - 1]);
+                        const stops = labels.map((_, i) => gColorScale(i));
+                        track.style.background = `linear-gradient(to right, ${stops.join(", ")})`;
+                        document.getElementById("r-gradient-year-min").textContent = labels[0];
+                        document.getElementById("r-gradient-year-max").textContent = labels[labels.length - 1];
+                        const hoverLabel = document.getElementById("r-gradient-hover-year");
+                        hoverLabel.textContent = "";
+
+                        track.onmousemove = (e) => {
+                            const rect = track.getBoundingClientRect();
+                            const pct = Math.max(0, Math.min(1, (e.clientX - rect.left) / rect.width));
+                            const idx = Math.round(pct * (labels.length - 1));
+                            hoverLabel.textContent = labels[idx];
+                            polygons.forEach((p, j) => {
+                                p.attr("fill-opacity", j === idx ? 0.25 : 0.03)
+                                 .attr("stroke-opacity", j === idx ? 1 : 0.15);
+                            });
+                            svg.selectAll("[class^='rdot-']").each(function() {
+                                const di = +d3.select(this).attr("class").split("-")[1];
+                                d3.select(this).style("opacity", di === idx ? 1 : 0.2);
+                            });
+                        };
+                        track.onmouseleave = () => {
+                            hoverLabel.textContent = "";
+                            polygons.forEach(p => p.attr("fill-opacity", 0.15).attr("stroke-opacity", 0.85));
+                            svg.selectAll("[class^='rdot-']").style("opacity", 1);
+                        };
+                    } else {
+                        legendList.style.display = "";
+                        gradientBar.style.display = "none";
+                        labels.forEach((lbl, i) => {
+                            const item = document.createElement("div");
+                            item.className = "r-legend-item";
+                            item.innerHTML = `<span class="r-legend-dot" style="background:${colorFn(i)}"></span><span>${lbl}</span>`;
+                            item.addEventListener("mouseenter", () => {
+                                polygons.forEach((p, j) => {
+                                    p.attr("fill-opacity", j === i ? 0.25 : 0.03)
+                                     .attr("stroke-opacity", j === i ? 1 : 0.15);
+                                });
+                                svg.selectAll("[class^='rdot-']").each(function() {
+                                    const idx = +d3.select(this).attr("class").split("-")[1];
+                                    d3.select(this).style("opacity", idx === i ? 1 : 0.2);
+                                });
+                            });
+                            item.addEventListener("mouseleave", () => {
+                                polygons.forEach(p => p.attr("fill-opacity", 0.15).attr("stroke-opacity", 0.85));
+                                svg.selectAll("[class^='rdot-']").style("opacity", 1);
+                            });
+                            legendList.appendChild(item);
+                        });
+                    }
+                }
+
+                // Artist mode
+                function renderArtist() {
+                    const band = artistSel.value;
+                    if (!band) return;
+                    const bandEmotions = emotionsData.filter(r => r.band === band);
+                    const albums = [...new Set(bandEmotions.map(r => r.album))];
+                    const albumYears = bandAlbums.get(band) || new Map();
+                    albums.sort((a, b) => (albumYears.get(a) || 9999) - (albumYears.get(b) || 9999));
+
+                    const datasets = albums.map(album => {
+                        const rows = bandEmotions.filter(r => r.album === album);
+                        const songCount = albumSongCount.get(band + "\t" + album) || 1;
+                        const values = RADAR_EMOTIONS.map(em => {
+                            const count = rows.filter(r => r.emotion === em).length;
+                            return Math.round((count / songCount) * 100) / 100;
+                        });
+                        const year = albumYears.get(album);
+                        return { label: album + (year ? ` (${year})` : ""), values };
+                    });
+                    document.getElementById("radar-legend").querySelector("h3").textContent = "Albums";
+                    drawRadar(datasets, datasets.map(d => d.label), i => RADAR_COLORS[i % RADAR_COLORS.length], false);
+                }
+
+                // Country mode
+                function buildCountryData(country) {
+                    const cBands = [];
+                    bandCountry.forEach((c, b) => { if (c === country) cBands.push(b); });
+                    const bandSet = new Set(cBands);
+                    const cEmotions = emotionsData.filter(r => bandSet.has(r.band));
+
+                    const albumYearList = [];
+                    bandAlbums.forEach((albums, band) => {
+                        if (!bandSet.has(band)) return;
+                        albums.forEach((year, album) => { if (year) albumYearList.push({ band, album, year }); });
+                    });
+
+                    const years = [...new Set(albumYearList.map(a => a.year))].sort((a, b) => a - b);
+                    return years.map(year => {
+                        const albumsThisYear = albumYearList.filter(a => a.year === year);
+                        const keys = new Set(albumsThisYear.map(a => a.band + "\t" + a.album));
+                        let totalSongs = 0;
+                        albumsThisYear.forEach(a => {
+                            totalSongs += albumSongCount.get(a.band + "\t" + a.album) || 0;
+                        });
+                        if (totalSongs === 0) totalSongs = 1;
+                        const rows = cEmotions.filter(r => keys.has(r.band + "\t" + r.album));
+                        const values = RADAR_EMOTIONS.map(em => {
+                            const count = rows.filter(r => r.emotion === em).length;
+                            return Math.round((count / totalSongs) * 100) / 100;
+                        });
+                        return { label: String(year), values, year };
+                    }).filter(d => d.values.some(v => v > 0));
+                }
+
+                function renderCountry() {
+                    stopRadarAnim();
+                    const country = countrySel.value;
+                    if (!country) return;
+                    radarYearData = buildCountryData(country);
+                    document.getElementById("radar-legend").querySelector("h3").textContent = "Years";
+                    document.getElementById("radar-year-display").textContent = "All years";
+                    const colorScale = d3.scaleSequential(d3.interpolateViridis).domain([0, radarYearData.length - 1]);
+                    drawRadar(radarYearData, radarYearData.map(d => d.label), i => colorScale(i), true);
+                }
+
+                function startRadarAnim() {
+                    if (radarYearData.length === 0) return;
+                    radarAnimIdx = 0;
+                    document.getElementById("radar-play-btn").textContent = "⏸ Pause";
+                    animNext();
+                }
+                function animNext() {
+                    if (radarAnimIdx >= radarYearData.length) {
+                        stopRadarAnim();
+                        renderCountry();
+                        return;
+                    }
+                    const frame = radarYearData.slice(0, radarAnimIdx + 1);
+                    const colorScale = d3.scaleSequential(d3.interpolateViridis).domain([0, radarYearData.length - 1]);
+                    drawRadar(frame, frame.map(d => d.label), i => colorScale(i), true);
+                    // Always show full year range in legend
+                    document.getElementById("r-gradient-year-min").textContent = radarYearData[0].label;
+                    document.getElementById("r-gradient-year-max").textContent = radarYearData[radarYearData.length - 1].label;
+                    const allStops = radarYearData.map((_, i) => colorScale(i));
+                    document.getElementById("r-gradient-track").style.background = `linear-gradient(to right, ${allStops.join(", ")})`;
+                    document.getElementById("radar-year-display").textContent = radarYearData[radarAnimIdx].label;
+                    radarAnimIdx++;
+                    radarAnimTimer = setTimeout(animNext, 800);
+                }
+                function stopRadarAnim() {
+                    if (radarAnimTimer) { clearTimeout(radarAnimTimer); radarAnimTimer = null; }
+                    document.getElementById("radar-play-btn").textContent = "▶ Play";
+                }
+
+                // Event listeners
+                artistSel.addEventListener("change", renderArtist);
+                countrySel.addEventListener("change", renderCountry);
+                baselineToggle.addEventListener("change", () => {
+                    if (radarMode === "artist") renderArtist();
+                    else renderCountry();
+                });
+
+                document.getElementById("r-btn-artist").addEventListener("click", () => {
+                    if (radarMode === "artist") return;
+                    radarMode = "artist";
+                    document.getElementById("r-btn-artist").classList.add("active");
+                    document.getElementById("r-btn-country").classList.remove("active");
+                    document.getElementById("r-label-artist").style.display = "";
+                    document.getElementById("r-label-country").style.display = "none";
+                    document.getElementById("radar-year-display").style.display = "none";
+                    document.getElementById("radar-play-btn").style.display = "none";
+                    stopRadarAnim();
+                    renderArtist();
+                });
+                document.getElementById("r-btn-country").addEventListener("click", () => {
+                    if (radarMode === "country") return;
+                    radarMode = "country";
+                    document.getElementById("r-btn-country").classList.add("active");
+                    document.getElementById("r-btn-artist").classList.remove("active");
+                    document.getElementById("r-label-country").style.display = "";
+                    document.getElementById("r-label-artist").style.display = "none";
+                    document.getElementById("radar-year-display").style.display = "inline";
+                    document.getElementById("radar-play-btn").style.display = "inline";
+                    stopRadarAnim();
+                    renderCountry();
+                });
+                document.getElementById("radar-play-btn").addEventListener("click", () => {
+                    if (radarAnimTimer) stopRadarAnim(); else startRadarAnim();
+                });
+
+                // Initial render
+                renderArtist();
+            });
+        }
+
+        // ===== TAG CLOUD (lazy init) =====
+        let cloudInitialized = false;
+
+        function initCloud() {
+            cloudInitialized = true;
+
+            const container = document.getElementById("cloud-container");
+            const uniqueToggle = document.getElementById("cloud-unique-toggle");
+            const typeButtons = document.querySelectorAll(".cloud-type-btn");
+            let currentType = "person";
+            let entitiesData = [];
+
+            d3.text("songs_entities.csv").then(raw => {
+                const sep = d3.dsvFormat(";");
+                entitiesData = sep.parse(raw);
+
+                typeButtons.forEach(btn => {
+                    btn.addEventListener("click", () => {
+                        typeButtons.forEach(b => b.classList.remove("active"));
+                        btn.classList.add("active");
+                        currentType = btn.dataset.type;
+                        renderCloud();
+                    });
+                });
+                uniqueToggle.addEventListener("change", renderCloud);
+
+                renderCloud();
+            });
+
+            const cloudTooltip = document.getElementById("cloud-tooltip");
+
+            function renderCloud() {
+                container.innerHTML = "";
+                const uniquePerBand = uniqueToggle.checked;
+                const filtered = entitiesData.filter(r => r.type === currentType);
+
+                // Count occurrences + track bands
+                const counts = new Map();
+                const bandMap = new Map(); // word -> Map(band -> count)
+                if (uniquePerBand) {
+                    const seen = new Set();
+                    filtered.forEach(r => {
+                        const word = r.entity.toLowerCase();
+                        const key = r.band + "\t" + word;
+                        if (seen.has(key)) return;
+                        seen.add(key);
+                        counts.set(word, (counts.get(word) || 0) + 1);
+                        if (!bandMap.has(word)) bandMap.set(word, new Map());
+                        bandMap.get(word).set(r.band, 1);
+                    });
+                } else {
+                    filtered.forEach(r => {
+                        const word = r.entity.toLowerCase();
+                        counts.set(word, (counts.get(word) || 0) + 1);
+                        if (!bandMap.has(word)) bandMap.set(word, new Map());
+                        const bm = bandMap.get(word);
+                        bm.set(r.band, (bm.get(r.band) || 0) + 1);
+                    });
+                }
+
+                // Sort by count desc, take top 100
+                const sorted = [...counts.entries()]
+                    .sort((a, b) => b[1] - a[1])
+                    .slice(0, 100);
+
+                if (sorted.length === 0) return;
+
+                const maxCount = sorted[0][1];
+                const minCount = sorted[sorted.length - 1][1];
+                const sizeScale = d3.scaleLog()
+                    .domain([Math.max(1, minCount), Math.max(2, maxCount)])
+                    .range([11, 52])
+                    .clamp(true);
+
+                const colors = ["#4ecdc4", "#ff6b6b", "#ffd93d", "#6bcf7f", "#c56cf0",
+                                "#ff9ff3", "#48dbfb", "#ffa502", "#70a1ff", "#a4b0be",
+                                "#fd79a8", "#00cec9", "#e17055", "#0984e3", "#b8e994"];
+
+                const w = container.clientWidth || 900;
+                const h = container.clientHeight || 600;
+
+                const svg = d3.select(container).append("svg")
+                    .attr("width", w).attr("height", h);
+
+                // Spiral placement
+                const placed = [];
+
+                function intersects(box, existing) {
+                    for (const e of existing) {
+                        if (box.x < e.x + e.w && box.x + box.w > e.x &&
+                            box.y < e.y + e.h && box.y + box.h > e.y) return true;
+                    }
+                    return false;
+                }
+
+                sorted.forEach(([word, count], idx) => {
+                    const fontSize = sizeScale(count);
+                    const approxW = word.length * fontSize * 0.6;
+                    const approxH = fontSize * 1.2;
+                    let x, y, step = 0;
+                    const cx = w / 2, cy = h / 2;
+
+                    // Archimedean spiral
+                    while (step < 1500) {
+                        const angle = step * 0.15;
+                        const radius = 4 * step * 0.08;
+                        x = cx + radius * Math.cos(angle) - approxW / 2;
+                        y = cy + radius * Math.sin(angle) - approxH / 2;
+                        const box = { x, y, w: approxW, h: approxH };
+                        if (x > 5 && y > 5 && x + approxW < w - 5 && y + approxH < h - 5 &&
+                            !intersects(box, placed)) {
+                            placed.push(box);
+                            break;
+                        }
+                        step++;
+                    }
+                    if (step >= 1500) return; // couldn't place
+
+                    const color = colors[idx % colors.length];
+                    svg.append("text")
+                        .attr("x", x + approxW / 2)
+                        .attr("y", y + approxH * 0.8)
+                        .attr("text-anchor", "middle")
+                        .attr("font-size", fontSize + "px")
+                        .attr("fill", color)
+                        .attr("font-weight", "600")
+                        .text(word)
+                        .on("mouseover", function(event) {
+                            const bands = bandMap.get(word);
+                            let html = `<strong>${word}</strong><div class="cloud-tt-count">${count} total</div>`;
+                            html += `<div class="band-cloud">`;
+                            const bandArr = [...bands.entries()].sort((a, b) => b[1] - a[1]);
+                            const bandMax = bandArr[0][1] || 1;
+                            bandArr.slice(0, 20).forEach(([band, bc]) => {
+                                const sz = uniquePerBand ? 12 : Math.max(10, Math.round((bc / bandMax) * 18));
+                                const opacity = uniquePerBand ? 1 : 0.5 + (bc / bandMax) * 0.5;
+                                html += `<span style="font-size:${sz}px; color:${color}; opacity:${opacity}">${band}</span>`;
+                            });
+                            if (bandArr.length > 20) html += `<span style="color:#888">+${bandArr.length - 20} more</span>`;
+                            html += `</div>`;
+                            cloudTooltip.style.display = "block";
+                            cloudTooltip.innerHTML = html;
+                        })
+                        .on("mousemove", function(event) {
+                            cloudTooltip.style.left = (event.pageX + 14) + "px";
+                            cloudTooltip.style.top = (event.pageY - 10) + "px";
+                        })
+                        .on("mouseout", function() {
+                            cloudTooltip.style.display = "none";
+                        });
+                });
+            }
+        }
+    </script>
 </body>
 </html>
