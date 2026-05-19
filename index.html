@@ -801,8 +801,8 @@
 
             <!-- Nodes: all 150×170, columns at x=0,220,440,660,880 -->
             <div class="flow-node has-img" style="left: 0px; top: 50px;">
-                <img src="imgs/global-source.png" alt="Genius lyrics">
-                <span class="node-label">Genius lyrics<br><small style="color:#888">Global</small></span>
+                <img src="imgs/global-source.png" alt="AZLyrics">
+                <span class="node-label">AZLyrics<br><small style="color:#888">Global</small></span>
                 <span class="node-stats">100 bands · 1237 albums</span>
             </div>
             <div class="flow-node has-img" style="left: 0px; top: 260px;">
@@ -861,6 +861,11 @@
                 <input type="checkbox" id="radar-baseline-toggle"> Show baseline
             </label>
         </div>
+        <div class="slide-legend" style="position:absolute; bottom:70px; left:20px; z-index:10; background:rgba(30,30,50,0.9); padding:14px 20px; border-radius:10px; font-size:13px;">
+            <div style="margin-bottom:4px; color:#aaa;">Polygon area = emotion prevalence</div>
+            <div style="color:#aaa;">Hover dots for details</div>
+            <div style="margin-top:6px; color:#aaa;">Dashed line = global baseline</div>
+        </div>
         <svg id="radar-svg"></svg>
         <div id="radar-legend">
             <h3>Albums</h3>
@@ -896,6 +901,11 @@
                 <div id="chord-country-list" style="max-height: 120px; overflow-y: auto;"></div>
             </div>
         </div>
+        <div class="slide-legend" style="position:absolute; bottom:70px; left:20px; z-index:10; background:rgba(30,30,50,0.9); padding:14px 20px; border-radius:10px; font-size:13px;">
+            <div style="margin-bottom:4px; color:#aaa;">Arc width = topic frequency</div>
+            <div style="color:#aaa;">Ribbon = shared topic between bands</div>
+            <div style="margin-top:6px; color:#aaa;">Hover arcs/ribbons for details</div>
+        </div>
         <svg id="chord-svg"></svg>
         <div id="topic-leaderboard">
             <h3>Topic Leaderboard</h3>
@@ -915,6 +925,10 @@
             <label style="font-size:12px; display:flex; align-items:center; gap:6px; cursor:pointer; margin-top:8px;">
                 <input type="checkbox" id="cloud-unique-toggle"> Unique per band
             </label>
+        </div>
+        <div class="slide-legend" style="position:absolute; bottom:70px; left:20px; z-index:10; background:rgba(30,30,50,0.9); padding:14px 20px; border-radius:10px; font-size:13px;">
+            <div style="margin-bottom:4px; color:#aaa;">Word size = mention frequency</div>
+            <div style="color:#aaa;">Hover for band breakdown</div>
         </div>
         <div id="cloud-container"></div>
         <div id="cloud-tooltip"></div>
@@ -978,7 +992,7 @@
 
     <div id="drilldown">
         <button id="drilldown-close">&times;</button>
-        <div id="drilldown-header"><h2 id="drilldown-title"></h2><p>Circle size = word usage count. Click outside or &times; to close.</p></div>
+        <div id="drilldown-header"><h2 id="drilldown-title"></h2><p id="drilldown-subtitle"></p></div>
         <svg id="drilldown-svg"></svg>
     </div>
 
@@ -1910,8 +1924,10 @@
                     dsvg.call(drillZoom);
                     dsvg.call(drillZoom.transform, d3.zoomIdentity.translate(offsetX, offsetY));
 
+                    const subtitle = document.getElementById("drilldown-subtitle");
                     if (d.type === "band") {
                         title.textContent = d.label;
+                        subtitle.textContent = "Circle size = profanity rate per song (‰). Zoom in for song details. Press ESC or × to close.";
                         const bandRows = rows.filter(r => r.band === d.label);
                         const wordMap = new Map();
                         bandRows.forEach(r => {
@@ -1948,6 +1964,7 @@
                         renderHierarchicalPack(dg, { name: d.label, children: children.slice(0, 40) }, size);
                     } else {
                         title.textContent = censor(d.label);
+                        subtitle.textContent = "Circle size = percentage of occurrences within group. Press ESC or × to close.";
                         const profRows = filteredRows.filter(r => r.aggregated_word === d.label);
                         // Compute total count per word, then convert to percentage
                         const wordCounts = new Map();
